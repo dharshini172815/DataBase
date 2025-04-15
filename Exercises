@@ -970,4 +970,267 @@ mysql> select*from new_subQ;
 +-------------+---------+--------+
 7 rows in set (0.00 sec)
 
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+8. AGGREGATE METHODS:
+---------------------
+
+mysql> create table emp_aggre(id int not null,
+    -> name varchar(100) not null,
+    -> department varchar(100) not null, 
+    -> salary int not null);
+Query OK, 0 rows affected (0.12 sec)
+
+mysql> desc emp_aggre;
++------------+--------------+------+-----+---------+-------+
+| Field      | Type         | Null | Key | Default | Extra |
++------------+--------------+------+-----+---------+-------+
+| id         | int          | NO   |     | NULL    |       |
+| name       | varchar(100) | NO   |     | NULL    |       |
+| department | varchar(100) | NO   |     | NULL    |       |
+| salary     | int          | NO   |     | NULL    |       |
++------------+--------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> insert into emp_aggre values(1, 'Divya', 'HR', 50000),
+    -> (2, 'Jeeva', 'IT', 60000),
+    -> (3, 'Dharani', 'IT', 65000),
+    -> (4, 'Sanju', 'HR', 52000),
+    -> (5, 'Veni', 'Finance', 70000);
+Query OK, 5 rows affected (0.04 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select*from emp_aggre;
++----+---------+------------+--------+
+| id | name    | department | salary |
++----+---------+------------+--------+
+|  1 | Divya   | HR         |  50000 |
+|  2 | Jeeva   | IT         |  60000 |
+|  3 | Dharani | IT         |  65000 |
+|  4 | Sanju   | HR         |  52000 |
+|  5 | Veni    | Finance    |  70000 |
++----+---------+------------+--------+
+5 rows in set (0.00 sec)
+
+mysql> select count(*) as total_employees from emp_aggre;
++-----------------+
+| total_employees |
++-----------------+
+|               5 |
++-----------------+
+1 row in set (0.01 sec)
+
+mysql> select sum(salary) as total_salary from emp_aggre;
++--------------+
+| total_salary |
++--------------+
+|       297000 |
++--------------+
+1 row in set (0.00 sec)
+
+mysql> select avg(salary) as average_salary from emp_aggre;
++----------------+
+| average_salary |
++----------------+
+|     59400.0000 |
++----------------+
+1 row in set (0.00 sec)
+
+mysql> select min(salary) as minimum_salary from emp_aggre;
++----------------+
+| minimum_salary |
++----------------+
+|          50000 |
++----------------+
+1 row in set (0.00 sec)
+
+mysql> select max(salary) as maximum_salary from emp_aggre;
++----------------+
+| maximum_salary |
++----------------+
+|          70000 |
++----------------+
+1 row in set (0.00 sec)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+9. LIKE, IN, NOT IN, BETWEEN, LIMIT:
+-----------------------------------
+
+mysql> create table employee_table AS select * from emp_subQ;
+ERROR 1050 (42S01): Table 'employee_table' already exists
+mysql> select * from employee_table;
++--------+-------------+---------+--------+------------+
+| emp_id | emp_name    | dept_id | salary | ph_no      |
++--------+-------------+---------+--------+------------+
+|    101 | Dharshini   |      10 |  24500 | 7639299590 |
+|    102 | Sri         |      30 |  18000 | 6382854900 |
+|    103 | Manimala    |      50 |  21000 | 7530098769 |
+|    104 | Alagu priya |      20 |  50000 | 7695839406 |
+|    105 | Nivi        |      40 |  32500 | 8473665093 |
+|    106 | Murugan     |      10 |  23000 | 9047111664 |
+|    107 | Sanjeev     |      30 |  15000 | 8799056778 |
+|    108 | Moorthi     |      10 |  34000 | 9073241661 |
+|    109 | Dharani     |      40 |  23750 | 8329918045 |
+|    110 | Soundarya   |      20 |  40000 | 9037189432 |
++--------+-------------+---------+--------+------------+
+10 rows in set (0.00 sec)
+
+mysql> select*from employee_table where emp_name like %i;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '%i' at line 1
+mysql> select*from employee_table where emp_name like '%i';
++--------+-----------+---------+--------+------------+
+| emp_id | emp_name  | dept_id | salary | ph_no      |
++--------+-----------+---------+--------+------------+
+|    101 | Dharshini |      10 |  24500 | 7639299590 |
+|    102 | Sri       |      30 |  18000 | 6382854900 |
+|    105 | Nivi      |      40 |  32500 | 8473665093 |
+|    108 | Moorthi   |      10 |  34000 | 9073241661 |
+|    109 | Dharani   |      40 |  23750 | 8329918045 |
++--------+-----------+---------+--------+------------+
+5 rows in set (0.00 sec)
+
+mysql> select*from employee_table where emp_name like '%a';
++--------+-------------+---------+--------+------------+
+| emp_id | emp_name    | dept_id | salary | ph_no      |
++--------+-------------+---------+--------+------------+
+|    103 | Manimala    |      50 |  21000 | 7530098769 |
+|    104 | Alagu priya |      20 |  50000 | 7695839406 |
+|    110 | Soundarya   |      20 |  40000 | 9037189432 |
++--------+-------------+---------+--------+------------+
+3 rows in set (0.00 sec)
+
+mysql> select*from employee_table where emp_name like 'S%';
++--------+-----------+---------+--------+------------+
+| emp_id | emp_name  | dept_id | salary | ph_no      |
++--------+-----------+---------+--------+------------+
+|    102 | Sri       |      30 |  18000 | 6382854900 |
+|    107 | Sanjeev   |      30 |  15000 | 8799056778 |
+|    110 | Soundarya |      20 |  40000 | 9037189432 |
++--------+-----------+---------+--------+------------+
+3 rows in set (0.00 sec)
+
+mysql> select*from employee_table where emp_name like 'a_';
+Empty set (0.00 sec)
+
+mysql> select*from employee_table where emp_name like 'a_%';
++--------+-------------+---------+--------+------------+
+| emp_id | emp_name    | dept_id | salary | ph_no      |
++--------+-------------+---------+--------+------------+
+|    104 | Alagu priya |      20 |  50000 | 7695839406 |
++--------+-------------+---------+--------+------------+
+1 row in set (0.00 sec)
+
+mysql> select*from employee_table where emp_name like 'M_%_';
++--------+----------+---------+--------+------------+
+| emp_id | emp_name | dept_id | salary | ph_no      |
++--------+----------+---------+--------+------------+
+|    103 | Manimala |      50 |  21000 | 7530098769 |
+|    106 | Murugan  |      10 |  23000 | 9047111664 |
+|    108 | Moorthi  |      10 |  34000 | 9073241661 |
++--------+----------+---------+--------+------------+
+3 rows in set (0.00 sec)
+
+mysql> select*from employee_table where emp_name like '%a%';
++--------+-------------+---------+--------+------------+
+| emp_id | emp_name    | dept_id | salary | ph_no      |
++--------+-------------+---------+--------+------------+
+|    101 | Dharshini   |      10 |  24500 | 7639299590 |
+|    103 | Manimala    |      50 |  21000 | 7530098769 |
+|    104 | Alagu priya |      20 |  50000 | 7695839406 |
+|    106 | Murugan     |      10 |  23000 | 9047111664 |
+|    107 | Sanjeev     |      30 |  15000 | 8799056778 |
+|    109 | Dharani     |      40 |  23750 | 8329918045 |
+|    110 | Soundarya   |      20 |  40000 | 9037189432 |
++--------+-------------+---------+--------+------------+
+7 rows in set (0.00 sec)
+
+// IN
+-----
+
+mysql> select*from employee_table where dept_id in (10,20);
++--------+-------------+---------+--------+------------+
+| emp_id | emp_name    | dept_id | salary | ph_no      |
++--------+-------------+---------+--------+------------+
+|    101 | Dharshini   |      10 |  24500 | 7639299590 |
+|    104 | Alagu priya |      20 |  50000 | 7695839406 |
+|    106 | Murugan     |      10 |  23000 | 9047111664 |
+|    108 | Moorthi     |      10 |  34000 | 9073241661 |
+|    110 | Soundarya   |      20 |  40000 | 9037189432 |
++--------+-------------+---------+--------+------------+
+5 rows in set (0.00 sec)
+
+
+// NOT IN
+---------
+
+mysql> select*from employee_table where dept_id not in (10,20);
++--------+----------+---------+--------+------------+
+| emp_id | emp_name | dept_id | salary | ph_no      |
++--------+----------+---------+--------+------------+
+|    102 | Sri      |      30 |  18000 | 6382854900 |
+|    103 | Manimala |      50 |  21000 | 7530098769 |
+|    105 | Nivi     |      40 |  32500 | 8473665093 |
+|    107 | Sanjeev  |      30 |  15000 | 8799056778 |
+|    109 | Dharani  |      40 |  23750 | 8329918045 |
++--------+----------+---------+--------+------------+
+5 rows in set (0.00 sec)
+
+// BETWEEN
+----------
+
+mysql> select*from employee_table where salary between 15000 and 25000;
++--------+-----------+---------+--------+------------+
+| emp_id | emp_name  | dept_id | salary | ph_no      |
++--------+-----------+---------+--------+------------+
+|    101 | Dharshini |      10 |  24500 | 7639299590 |
+|    102 | Sri       |      30 |  18000 | 6382854900 |
+|    103 | Manimala  |      50 |  21000 | 7530098769 |
+|    106 | Murugan   |      10 |  23000 | 9047111664 |
+|    107 | Sanjeev   |      30 |  15000 | 8799056778 |
+|    109 | Dharani   |      40 |  23750 | 8329918045 |
++--------+-----------+---------+--------+------------+
+6 rows in set (0.00 sec)
+
+// LIMIT
+--------
+
+mysql> select*from employee_table
+    -> where dept_id = 10
+    -> limit 2;
++--------+-----------+---------+--------+------------+
+| emp_id | emp_name  | dept_id | salary | ph_no      |
++--------+-----------+---------+--------+------------+
+|    101 | Dharshini |      10 |  24500 | 7639299590 |
+|    106 | Murugan   |      10 |  23000 | 9047111664 |
++--------+-----------+---------+--------+------------+
+2 rows in set (0.00 sec)
+
+// OFFSET
+---------
+
+mysql> select*from employee_table
+    -> where dept_id = 10
+    -> limit 2
+    -> offset 1;
++--------+----------+---------+--------+------------+
+| emp_id | emp_name | dept_id | salary | ph_no      |
++--------+----------+---------+--------+------------+
+|    106 | Murugan  |      10 |  23000 | 9047111664 |
+|    108 | Moorthi  |      10 |  34000 | 9073241661 |
++--------+----------+---------+--------+------------+
+2 rows in set (0.00 sec)
+
+//LIMIT WITH OFFSET TO FIND 3RD MAX SALARY
+------------------------------------------
+
+mysql> select * from employee_table order by salary desc
+    -> limit 1 offset 2;
++--------+----------+---------+--------+------------+
+| emp_id | emp_name | dept_id | salary | ph_no      |
++--------+----------+---------+--------+------------+
+|    108 | Moorthi  |      10 |  34000 | 9073241661 |
++--------+----------+---------+--------+------------+
+1 row in set (0.00 sec)
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -782,7 +782,7 @@ mysql> select product, sum(quantity) as total_quantity
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 7. SUB QUERY:
--------------
+--------------
 
 mysql> create table emp_subQ(emp_id int not null,
     -> emp_name varchar(100) not null,

@@ -2120,4 +2120,81 @@ mysql> select s.name as student_name, b.beach_name
 +--------------+---------------------+
 9 rows in set (0.00 sec)
 
+// Students Who Love 'Comedy' Movies
+-------------------------------------
+mysql> select s.student_id, s.name, g.genre_name
+    -> from students s
+    -> join student_movie_interests smi
+    -> on s.student_id = smi.student_id
+    -> join genres g
+    -> on smi.genre_id = g.genre_id
+    -> where g.genre_name in ('Comedy');
++------------+--------+------------+
+| student_id | name   | genre_name |
++------------+--------+------------+
+|          1 | Geetha | Comedy     |
+|          3 | sakthi | Comedy     |
+|          5 | priya  | Comedy     |
++------------+--------+------------+
+3 rows in set (0.01 sec)
+
+//Group Students by Favorite Actor or Actress (Fan Clubs)
+---------------------------------------------------------
+mysql> select favorite_actor, GROUP_CONCAT(s.name) as fans
+    -> from student_favorites sf
+    -> join students s
+    -> on sf.student_id = s.student_id
+    -> group by favorite_actor;
++----------------+--------------+
+| favorite_actor | fans         |
++----------------+--------------+
+| Ajith          | sakthi       |
+| Dhanush        | murugesh     |
+| Surya          | sanjay,prema |
+| Vijay          | Geetha,priya |
++----------------+--------------+
+4 rows in set (0.00 sec)
+
+mysql> select favorite_actress, GROUP_CONCAT(s.name) as fans
+    -> from student_favorites sf
+    -> join students s
+    -> on sf.student_id = s.student_id
+    -> group by favorite_actress;
++------------------+-----------------+
+| favorite_actress | fans            |
++------------------+-----------------+
+| Anjali           | sanjay          |
+| Asin             | prema           |
+| Nayanthara       | sakthi          |
+| Samantha         | priya           |
+| Trisha           | Geetha,murugesh |
++------------------+-----------------+
+5 rows in set (0.00 sec)
+
+//Pairs of students who both like the same beach
+--------------------------------------------------
+mysql> select s1.name as student1, s2.name as student2, b.beach_name
+    -> from student_fav_beaches fb1
+    -> join student_fav_beaches fb2
+    -> on fb1.beach_id = fb2.beach_id AND fb1.student_id < fb2.student_id
+    -> join students s1 on fb1.student_id = s1.student_id
+    -> join students s2 on fb2.student_id = s2.student_id
+    -> join beaches b 
+    -> on fb1.beach_id = b.beach_id;
++----------+----------+---------------------+
+| student1 | student2 | beach_name          |
++----------+----------+---------------------+
+| Geetha   | sanjay   | Marina beach        |
+| Geetha   | murugesh | Marina beach        |
+| Geetha   | prema    | Marina beach        |
+| sanjay   | murugesh | Marina beach        |
+| sanjay   | prema    | Marina beach        |
+| murugesh | prema    | Marina beach        |
+| sakthi   | murugesh | Thiruvanmiyur beach |
+| Geetha   | priya    | Besant nagar beach  |
+| Geetha   | prema    | Besant nagar beach  |
+| priya    | prema    | Besant nagar beach  |
++----------+----------+---------------------+
+10 rows in set (0.01 sec)
+
 

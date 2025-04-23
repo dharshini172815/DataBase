@@ -2122,21 +2122,23 @@ mysql> select s.name as student_name, b.beach_name
 
 // Students Who Love 'Comedy' Movies
 -------------------------------------
-mysql> select s.student_id, s.name, g.genre_name
-    -> from students s
-    -> join student_movie_interests smi
-    -> on s.student_id = smi.student_id
-    -> join genres g
-    -> on smi.genre_id = g.genre_id
-    -> where g.genre_name in ('Comedy');
-+------------+--------+------------+
-| student_id | name   | genre_name |
-+------------+--------+------------+
-|          1 | Geetha | Comedy     |
-|          3 | sakthi | Comedy     |
-|          5 | priya  | Comedy     |
-+------------+--------+------------+
-3 rows in set (0.01 sec)
+mysql> select g.genre_name, GROUP_CONCAT(s.name order by s.name SEPARATOR ', ') as students_with_same_interest
+    -> from student_movie_interests smi
+    -> join students s on smi.student_id = s.student_id
+    -> join genres g on smi.genre_id = g.genre_id
+    -> group by g.genre_name;
++------------+-----------------------------+
+| genre_name | students_with_same_interest |
++------------+-----------------------------+
+| Action     | prema, sanjay               |
+| Comedy     | Geetha, priya, sakthi       |
+| Drama      | murugesh                    |
+| Horror     | priya                       |
+| Love       | Geetha, murugesh, sakthi    |
+| Sci-fi     | prema, sanjay               |
++------------+-----------------------------+
+6 rows in set (0.00 sec)
+
 
 //Group Students by Favorite Actor or Actress (Fan Clubs)
 ---------------------------------------------------------
@@ -2171,30 +2173,195 @@ mysql> select favorite_actress, GROUP_CONCAT(s.name) as fans
 +------------------+-----------------+
 5 rows in set (0.00 sec)
 
-//Pairs of students who both like the same beach
---------------------------------------------------
-mysql> select s1.name as student1, s2.name as student2, b.beach_name
-    -> from student_fav_beaches fb1
-    -> join student_fav_beaches fb2
-    -> on fb1.beach_id = fb2.beach_id AND fb1.student_id < fb2.student_id
-    -> join students s1 on fb1.student_id = s1.student_id
-    -> join students s2 on fb2.student_id = s2.student_id
-    -> join beaches b 
-    -> on fb1.beach_id = b.beach_id;
-+----------+----------+---------------------+
-| student1 | student2 | beach_name          |
-+----------+----------+---------------------+
-| Geetha   | sanjay   | Marina beach        |
-| Geetha   | murugesh | Marina beach        |
-| Geetha   | prema    | Marina beach        |
-| sanjay   | murugesh | Marina beach        |
-| sanjay   | prema    | Marina beach        |
-| murugesh | prema    | Marina beach        |
-| sakthi   | murugesh | Thiruvanmiyur beach |
-| Geetha   | priya    | Besant nagar beach  |
-| Geetha   | prema    | Besant nagar beach  |
-| priya    | prema    | Besant nagar beach  |
-+----------+----------+---------------------+
-10 rows in set (0.01 sec)
+// students who likes beach
+---------------------------
+mysql> select b.beach_name, GROUP_CONCAT(s.name order by s.name) as students_who_like_beach
+    -> from student_fav_beaches sfb
+    -> join beaches b on b.beach_id = sfb.beach_id
+    -> join students s on s.student_id = sfb.student_id
+    -> group by b.beach_name;
++---------------------+------------------------------+
+| beach_name          | students_who_like_beach      |
++---------------------+------------------------------+
+| Besant nagar beach  | Geetha,prema,priya           |
+| Marina beach        | Geetha,murugesh,prema,sanjay |
+| Thiruvanmiyur beach | murugesh,sakthi              |
++---------------------+------------------------------+
+3 rows in set (0.00 sec)
+
+// Personalized Meetup Suggestions
+Recommend where two or more students can spend time together based on:
+
+Common favorite beaches
+-----------------------
+mysql> select b.beach_name, GROUP_CONCAT(s.name order by s.name SEPARATOR ', ' ) as students
+    -> from student_fav_beaches sb
+    -> join beaches b on sb.beach_id = b.beach_id
+    -> join students s on sb.student_id = s.student_id
+    -> group by b.beach_name
+    -> having count(*) >= 2;
++---------------------+---------------------------------+
+| beach_name          | students                        |
++---------------------+---------------------------------+
+| Besant nagar beach  | Geetha, prema, priya            |
+| Marina beach        | Geetha, murugesh, prema, sanjay |
+| Thiruvanmiyur beach | murugesh, sakthi                |
++---------------------+---------------------------------+
+3 rows in set (0.00 sec)
+
+Common favorite malls
+---------------------
+mysql> select m.mall_name, GROUP_CONCAT(s.name order by s.name SEPARATOR ', ') as students
+    -> from student_fav_malls sm
+    -> join shopping_malls m on sm.mall_id = m.mall_id
+    -> join students s on sm.student_id = s.student_id
+    -> group by m.mall_name
+    -> having count(*) > 2;
++-----------+----------------------+
+| mall_name | students             |
++-----------+----------------------+
+| Trendz    | Geetha, prema, priya |
++-----------+----------------------+
+1 row in set (0.00 sec)
+
+Common favorite movies
+----------------------
+mysql> select mv.movie_name, GROUP_CONCAT(s.name ORDER BY s.name SEPARATOR ', ') as students
+    -> from student_fav_movies sf
+    -> join movies mv ON sf.movie_id = mv.movie_id
+    -> join students s ON sf.student_id = s.student_id
+    -> group by mv.movie_name
+    -> having COUNT(*) >= 2;
++------------+-------------------------+
+| movie_name | students                |
++------------+-------------------------+
+| Billa      | Geetha, prema, sakthi   |
+| Dragon     | Geetha, murugesh        |
+| GOAT       | murugesh, priya, sanjay |
+| Sachin     | prema, priya, sanjay    |
++------------+-------------------------+
+4 rows in set (0.00 sec)
+
+// Most liked actor/actress
+---------------------------
+mysql> select favorite_actor, count(*) as likes
+    -> from student_favorites
+    -> group by favorite_actor
+    -> order by likes desc
+    -> limit 1;
++----------------+-------+
+| favorite_actor | likes |
++----------------+-------+
+| Vijay          |     2 |
++----------------+-------+
+1 row in set (0.00 sec)
+
+mysql> select favorite_actress, count(*) as likes
+    -> from student_favorites
+    -> group by favorite_actress
+    -> order by likes desc
+    -> limit 1;
++------------------+-------+
+| favorite_actress | likes |
++------------------+-------+
+| Trisha           |     2 |
++------------------+-------+
+1 row in set (0.00 sec)
+
+// Most popular movie genre among the class
+-------------------------------------------
+mysql> select g.genre_name, count(*) as interested_students
+    -> from student_movie_interests smi
+    -> join genres g on smi.genre_id = g.genre_id
+    -> group by g.genre_name
+    -> order by interested_students desc
+    -> limit 1;
++------------+---------------------+
+| genre_name | interested_students |
++------------+---------------------+
+| Comedy     |                   3 |
++------------+---------------------+
+1 row in set (0.00 sec)
+
+// Top 5 favorite movies currently
+----------------------------------
+mysql> select m.movie_name, count(*) as favorites
+    -> from student_fav_movies sf
+    -> join movies m on sf.movie_id = m.movie_id
+    -> group by m.movie_name
+    -> order by favorites desc, m.movie_name
+    -> limit 5;
++------------+-----------+
+| movie_name | favorites |
++------------+-----------+
+| Billa      |         3 |
+| GOAT       |         3 |
+| Sachin     |         3 |
+| Dragon     |         2 |
+| Kuruvi     |         1 |
++------------+-----------+
+5 rows in set (0.00 sec)
+
+// Who loves romantic movies?
+-----------------------------
+mysql> select s.name from student_movie_interests smi
+    -> join students s on smi.student_id = s.student_id
+    -> where smi.genre_id = (select genre_id from genres where genre_name = 'Love');
++----------+
+| name     |
++----------+
+| Geetha   |
+| sakthi   |
+| murugesh |
++----------+
+3 rows in set (0.00 sec)
+
+// Which beach is the most popular?
+------------------------------------
+mysql> select b.beach_name, count(*) as fans
+    -> from student_fav_beaches sb
+    -> join beaches b on sb.beach_id = b.beach_id
+    -> group by b.beach_name 
+    -> order by fans desc
+    -> limit 1;
++--------------+------+
+| beach_name   | fans |
++--------------+------+
+| Marina beach |    4 |
++--------------+------+
+1 row in set (0.00 sec)
+
+// What are the top favorite actors?
+------------------------------------
+mysql> select favorite_actor, count(*) as likes
+    -> from student_favorites
+    -> group by favorite_actor
+    -> order by likes desc
+    -> limit 3;
++----------------+-------+
+| favorite_actor | likes |
++----------------+-------+
+| Vijay          |     2 |
+| Surya          |     2 |
+| Ajith          |     1 |
++----------------+-------+
+3 rows in set (0.00 sec)
+
+// Which movie can most people agree on watching together?
+-----------------------------------------------------------
+mysql> select m.movie_name, count(*) as fan_count
+    -> from student_fav_movies sf
+    -> join movies m on sf.movie_id = m.movie_id
+    -> group by m.movie_name
+    -> order by fan_count desc
+    -> limit 1;
++------------+-----------+
+| movie_name | fan_count |
++------------+-----------+
+| GOAT       |         3 |
++------------+-----------+
+1 row in set (0.00 sec)
+
+
 
 

@@ -1,0 +1,172 @@
+ JOINS
+---------
+
+mysql> create table Student_join (regno int,
+    -> name varchar(100),
+    -> dep_id int,
+    -> dep_name varchar(100));
+Query OK, 0 rows affected (0.09 sec)
+
+mysql> desc Student_join;
++----------+--------------+------+-----+---------+-------+
+| Field    | Type         | Null | Key | Default | Extra |
++----------+--------------+------+-----+---------+-------+
+| regno    | int          | YES  |     | NULL    |       |
+| name     | varchar(100) | YES  |     | NULL    |       |
+| dep_id   | int          | YES  |     | NULL    |       |
+| dep_name | varchar(100) | YES  |     | NULL    |       |
++----------+--------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+mysql> create table Department_join(dep_id int,
+    -> dep_name varchar(100),
+    -> faculty_name varchar(100));
+Query OK, 0 rows affected (0.12 sec)
+
+mysql> desc Department_join;
++--------------+--------------+------+-----+---------+-------+
+| Field        | Type         | Null | Key | Default | Extra |
++--------------+--------------+------+-----+---------+-------+
+| dep_id       | int          | YES  |     | NULL    |       |
+| dep_name     | varchar(100) | YES  |     | NULL    |       |
+| faculty_name | varchar(100) | YES  |     | NULL    |       |
++--------------+--------------+------+-----+---------+-------+
+3 rows in set (0.00 sec)
+
+mysql> insert into Student_join values(101, 'Kanna', 1, 'BCA'),
+    -> (102, 'Priya', 2, 'Bsc IT'),
+    -> (103, 'Nivi', 3, 'Bcom'),
+    -> (104, 'Dharani', 4, 'BE');
+Query OK, 4 rows affected (0.03 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select*from Student_join;
++-------+---------+--------+----------+
+| regno | name    | dep_id | dep_name |
++-------+---------+--------+----------+
+|   101 | Kanna   |      1 | BCA      |
+|   102 | Priya   |      2 | Bsc IT   |
+|   103 | Nivi    |      3 | Bcom     |
+|   104 | Dharani |      4 | BE       |
++-------+---------+--------+----------+
+4 rows in set (0.00 sec)
+
+mysql> insert into Department_join values(1, 'BCA', 'Radhika'),
+    -> (2, 'Bsc IT', 'Kumar'),
+    -> (3, 'Bcom', 'Siva'),
+    -> (10, 'BA tamil', 'Tamilarasi'),
+    -> (11, 'BA english', 'Svetha'),
+    -> (12, 'Bsc maths', 'Rosy');
+Query OK, 6 rows affected (0.01 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> select*from Department_join;
++--------+------------+--------------+
+| dep_id | dep_name   | faculty_name |
++--------+------------+--------------+
+|      1 | BCA        | Radhika      |
+|      2 | Bsc IT     | Kumar        |
+|      3 | Bcom       | Siva         |
+|     10 | BA tamil   | Tamilarasi   |
+|     11 | BA english | Svetha       |
+|     12 | Bsc maths  | Rosy         |
++--------+------------+--------------+
+6 rows in set (0.00 sec)
+
+mysql> select s.name, s.dep_name, d.faculty_name
+    -> from Student_join s
+    -> left join Department_join d
+    -> on s.dep_id = d.dep_id;
++---------+----------+--------------+
+| name    | dep_name | faculty_name |
++---------+----------+--------------+
+| Kanna   | BCA      | Radhika      |
+| Priya   | Bsc IT   | Kumar        |
+| Nivi    | Bcom     | Siva         |
+| Dharani | BE       | NULL         |
++---------+----------+--------------+
+4 rows in set (0.00 sec)
+
+mysql> select s.name, s.dep_name, d.faculty_name
+    -> from Student_join s
+    -> right join Department_join d
+    -> on s.dep_id = d.dep_id;
++-------+----------+--------------+
+| name  | dep_name | faculty_name |
++-------+----------+--------------+
+| Kanna | BCA      | Radhika      |
+| Priya | Bsc IT   | Kumar        |
+| Nivi  | Bcom     | Siva         |
+| NULL  | NULL     | Tamilarasi   |
+| NULL  | NULL     | Svetha       |
+| NULL  | NULL     | Rosy         |
++-------+----------+--------------+
+6 rows in set (0.00 sec)
+
+mysql> select s.name, s.dep_name, d.faculty_name
+    -> from Student_join s
+    -> left join Department_join d
+    -> on s.dep_id = d.dep_id
+    -> union
+    -> select s.name, s.dep_name, d.faculty_name
+    -> from Student_join s
+    -> right join Department_join d
+    -> on s.dep_id = d.dep_id;
++---------+----------+--------------+
+| name    | dep_name | faculty_name |
++---------+----------+--------------+
+| Kanna   | BCA      | Radhika      |
+| Priya   | Bsc IT   | Kumar        |
+| Nivi    | Bcom     | Siva         |
+| Dharani | BE       | NULL         |
+| NULL    | NULL     | Tamilarasi   |
+| NULL    | NULL     | Svetha       |
+| NULL    | NULL     | Rosy         |
++---------+----------+--------------+
+7 rows in set (0.00 sec)
+
+mysql> select s.name, s.dep_name, d.faculty_name
+    -> from Student_join s
+    -> inner join Department_join d
+    -> on s.dep_id = d.dep_id;
++-------+----------+--------------+
+| name  | dep_name | faculty_name |
++-------+----------+--------------+
+| Kanna | BCA      | Radhika      |
+| Priya | Bsc IT   | Kumar        |
+| Nivi  | Bcom     | Siva         |
++-------+----------+--------------+
+3 rows in set (0.00 sec)
+
+mysql> select s.name, s.dep_name, d.faculty_name
+    -> from Student_join s
+    -> cross join Department_join d;
++---------+----------+--------------+
+| name    | dep_name | faculty_name |
++---------+----------+--------------+
+| Dharani | BE       | Radhika      |
+| Nivi    | Bcom     | Radhika      |
+| Priya   | Bsc IT   | Radhika      |
+| Kanna   | BCA      | Radhika      |
+| Dharani | BE       | Kumar        |
+| Nivi    | Bcom     | Kumar        |
+| Priya   | Bsc IT   | Kumar        |
+| Kanna   | BCA      | Kumar        |
+| Dharani | BE       | Siva         |
+| Nivi    | Bcom     | Siva         |
+| Priya   | Bsc IT   | Siva         |
+| Kanna   | BCA      | Siva         |
+| Dharani | BE       | Tamilarasi   |
+| Nivi    | Bcom     | Tamilarasi   |
+| Priya   | Bsc IT   | Tamilarasi   |
+| Kanna   | BCA      | Tamilarasi   |
+| Dharani | BE       | Svetha       |
+| Nivi    | Bcom     | Svetha       |
+| Priya   | Bsc IT   | Svetha       |
+| Kanna   | BCA      | Svetha       |
+| Dharani | BE       | Rosy         |
+| Nivi    | Bcom     | Rosy         |
+| Priya   | Bsc IT   | Rosy         |
+| Kanna   | BCA      | Rosy         |
++---------+----------+--------------+
+24 rows in set (0.00 sec)

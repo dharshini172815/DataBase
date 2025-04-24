@@ -1,0 +1,69 @@
+ CRICKET - SELF JOIN:
+-----------------------
+
+mysql> create table cricket(player_id int unique,
+    -> player_name varchar(100) not null,
+    -> captain_id int);
+Query OK, 0 rows affected (0.48 sec)
+
+mysql> desc cricket;
++-------------+--------------+------+-----+---------+-------+
+| Field       | Type         | Null | Key | Default | Extra |
++-------------+--------------+------+-----+---------+-------+
+| player_id   | int          | YES  | UNI | NULL    |       |
+| player_name | varchar(100) | NO   |     | NULL    |       |
+| captain_id  | int          | YES  |     | NULL    |       |
++-------------+--------------+------+-----+---------+-------+
+3 rows in set (0.01 sec)
+
+mysql> insert into cricket values(10, 'Sachin',null),
+    -> (7, 'Ms dhoni', 10),
+    -> (45, 'Rohit', 10),
+    -> (18, 'Virat', 10),
+    -> (13, 'Faf du plessis',null),
+    -> (3, 'Chahal', 43),
+    -> (43, 'Shreyas',null),
+    -> (97, 'Rajat', 18),
+    -> (17, 'ABD', 18);
+Query OK, 9 rows affected (0.09 sec)
+Records: 9  Duplicates: 0  Warnings: 0
+
+mysql> select*from cricket;
++-----------+----------------+------------+
+| player_id | player_name    | captain_id |
++-----------+----------------+------------+
+|        10 | Sachin         |       NULL |
+|         7 | Ms dhoni       |         10 |
+|        45 | Rohit          |         10 |
+|        18 | Virat          |         10 |
+|        13 | Faf du plessis |       NULL |
+|         3 | Chahal         |         43 |
+|        43 | Shreyas        |       NULL |
+|        97 | Rajat          |         18 |
+|        17 | ABD            |         18 |
++-----------+----------------+------------+
+9 rows in set (0.00 sec)
+
+mysql> select
+    -> p.player_id as PlayerID,
+    -> p.player_name as PlayerName,
+    -> p.captain_id as CaptainID,
+    -> c.player_name as CaptainName
+    -> from
+    -> cricket p
+    -> left join cricket c
+    -> on p.captain_id = c.player_id;
++----------+----------------+-----------+-------------+
+| PlayerID | PlayerName     | CaptainID | CaptainName |
++----------+----------------+-----------+-------------+
+|       10 | Sachin         |      NULL | NULL        |
+|        7 | Ms dhoni       |        10 | Sachin      |
+|       45 | Rohit          |        10 | Sachin      |
+|       18 | Virat          |        10 | Sachin      |
+|       13 | Faf du plessis |      NULL | NULL        |
+|        3 | Chahal         |        43 | Shreyas     |
+|       43 | Shreyas        |      NULL | NULL        |
+|       97 | Rajat          |        18 | Virat       |
+|       17 | ABD            |        18 | Virat       |
++----------+----------------+-----------+-------------+
+9 rows in set (0.00 sec)

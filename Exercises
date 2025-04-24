@@ -2120,7 +2120,7 @@ mysql> select s.name as student_name, b.beach_name
 +--------------+---------------------+
 9 rows in set (0.00 sec)
 
-// Students Who Love 'Comedy' Movies
+// Students With same interest
 -------------------------------------
 mysql> select g.genre_name, GROUP_CONCAT(s.name order by s.name SEPARATOR ', ') as students_with_same_interest
     -> from student_movie_interests smi
@@ -2189,7 +2189,36 @@ mysql> select b.beach_name, GROUP_CONCAT(s.name order by s.name) as students_who
 +---------------------+------------------------------+
 3 rows in set (0.00 sec)
 
+// Suggest ideal friend groups who share similar tastes in entertainment and hangout spots
+------------------------------------------------------------------------------------------
+mysql> SELECT
+    ->     GROUP_CONCAT(s.name) AS student_names,
+    ->     sm.mall_name,
+    ->     b.beach_name,
+    ->     m.movie_name
+    -> FROM students s
+    -> JOIN student_fav_malls sfm ON s.student_id = sfm.student_id
+    -> JOIN student_fav_beaches sfb ON s.student_id = sfb.student_id
+    -> JOIN student_fav_movies sfmv ON s.student_id = sfmv.student_id
+    -> JOIN shopping_malls sm ON sm.mall_id = sfm.mall_id
+    -> JOIN beaches b ON b.beach_id = sfb.beach_id
+    -> JOIN movies m ON m.movie_id = sfmv.movie_id
+    -> GROUP BY sfm.mall_id, sfb.beach_id, sfmv.movie_id
+    -> HAVING COUNT(*) >= 2;
++-----------------+-----------------+--------------------+------------+
+| student_names   | mall_name       | beach_name         | movie_name |
++-----------------+-----------------+--------------------+------------+
+| Geetha,prema    | Trendz          | Marina beach       | Billa      |
+| priya,prema     | Trendz          | Besant nagar beach | Sachin     |
+| Geetha,prema    | Trendz          | Besant nagar beach | Billa      |
+| prema,sanjay    | Saravana stores | Marina beach       | Sachin     |
+| sanjay,murugesh | Glitz           | Marina beach       | GOAT       |
++-----------------+-----------------+--------------------+------------+
+5 rows in set (0.01 sec)
+
+
 // Personalized Meetup Suggestions
+----------------------------------
 Recommend where two or more students can spend time together based on:
 
 Common favorite beaches

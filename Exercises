@@ -1690,6 +1690,127 @@ mysql> select*from Restaurant;
 +----+----------------+----------+--------------+--------+
 6 rows in set (0.00 sec)
 
+// drop view command - drop view [view_name];
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+INDEX :
+------
+
+mysql> create table Spc_clg(student_id int auto_increment primary key,
+    -> name varchar(100),
+    -> department varchar(50),
+    -> email varchar(100) unique,
+    -> age int);
+Query OK, 0 rows affected (2.10 sec)
+
+mysql> desc Spc_clg;
++------------+--------------+------+-----+---------+----------------+
+| Field      | Type         | Null | Key | Default | Extra          |
++------------+--------------+------+-----+---------+----------------+
+| student_id | int          | NO   | PRI | NULL    | auto_increment |
+| name       | varchar(100) | YES  |     | NULL    |                |
+| department | varchar(50)  | YES  |     | NULL    |                |
+| email      | varchar(100) | YES  | UNI | NULL    |                |
+| age        | int          | YES  |     | NULL    |                |
++------------+--------------+------+-----+---------+----------------+
+5 rows in set (0.25 sec)
+
+mysql> insert into Spc_clg(name, department, email, age) values
+    -> ('Keerthana', 'Computer science', 'keerthana@gmail.com', 20),
+    -> ('Rahul', 'Mechanical', 'rahul@gmail.com', 21),
+    -> ('Selva priya', 'Computer science', 'selvapriya@gmail.com', 19),
+    -> ('Jeeva', 'Civil', 'jeeva@gmail.com', 22),
+    -> ('Prakash', 'Electrical', 'prakash@gmail.com', 20),
+    -> ('Dharshini', 'Civil', 'dharshini@gmail.com', 21);
+Query OK, 6 rows affected (0.32 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> select*from Spc_clg;
++------------+-------------+------------------+----------------------+------+
+| student_id | name        | department       | email                | age  |
++------------+-------------+------------------+----------------------+------+
+|          1 | Keerthana   | Computer science | keerthana@gmail.com  |   20 |
+|          2 | Rahul       | Mechanical       | rahul@gmail.com      |   21 |
+|          3 | Selva priya | Computer science | selvapriya@gmail.com |   19 |
+|          4 | Jeeva       | Civil            | jeeva@gmail.com      |   22 |
+|          5 | Prakash     | Electrical       | prakash@gmail.com    |   20 |
+|          6 | Dharshini   | Civil            | dharshini@gmail.com  |   21 |
++------------+-------------+------------------+----------------------+------+
+6 rows in set (0.04 sec)
+
+mysql> create INDEX idx_department on Spc_clg(department);
+Query OK, 0 rows affected (1.60 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> create INDEX idx_dept_age on Spc_clg(department);
+Query OK, 0 rows affected, 1 warning (0.40 sec)
+Records: 0  Duplicates: 0  Warnings: 1
+
+mysql> select*from Spc_clg where department = 'Computer Science';
++------------+-------------+------------------+----------------------+------+
+| student_id | name        | department       | email                | age  |
++------------+-------------+------------------+----------------------+------+
+|          1 | Keerthana   | Computer science | keerthana@gmail.com  |   20 |
+|          3 | Selva priya | Computer science | selvapriya@gmail.com |   19 |
++------------+-------------+------------------+----------------------+------+
+2 rows in set (0.06 sec)
+
+mysql> select*from Spc_clg where department = 'Computer Science' AND age=20;
++------------+-----------+------------------+---------------------+------+
+| student_id | name      | department       | email               | age  |
++------------+-----------+------------------+---------------------+------+
+|          1 | Keerthana | Computer science | keerthana@gmail.com |   20 |
++------------+-----------+------------------+---------------------+------+
+1 row in set (0.00 sec)
+
+mysql> update Spc_clg set age = 21 where department = 'Computer science' and name = 'Selva priya';
+Query OK, 1 row affected (0.09 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select*from Spc_clg;
++------------+-------------+------------------+----------------------+------+
+| student_id | name        | department       | email                | age  |
++------------+-------------+------------------+----------------------+------+
+|          1 | Keerthana   | Computer science | keerthana@gmail.com  |   20 |
+|          2 | Rahul       | Mechanical       | rahul@gmail.com      |   21 |
+|          3 | Selva priya | Computer science | selvapriya@gmail.com |   21 |
+|          4 | Jeeva       | Civil            | jeeva@gmail.com      |   22 |
+|          5 | Prakash     | Electrical       | prakash@gmail.com    |   20 |
+|          6 | Dharshini   | Civil            | dharshini@gmail.com  |   21 |
++------------+-------------+------------------+----------------------+------+
+6 rows in set (0.00 sec)
+
+mysql> delete from Spc_clg where department = 'Mechanical';
+Query OK, 1 row affected (0.10 sec)
+
+mysql> select*from Spc_clg;
++------------+-------------+------------------+----------------------+------+
+| student_id | name        | department       | email                | age  |
++------------+-------------+------------------+----------------------+------+
+|          1 | Keerthana   | Computer science | keerthana@gmail.com  |   20 |
+|          3 | Selva priya | Computer science | selvapriya@gmail.com |   21 |
+|          4 | Jeeva       | Civil            | jeeva@gmail.com      |   22 |
+|          5 | Prakash     | Electrical       | prakash@gmail.com    |   20 |
+|          6 | Dharshini   | Civil            | dharshini@gmail.com  |   21 |
++------------+-------------+------------------+----------------------+------+
+5 rows in set (0.00 sec)
+
+mysql> drop INDEX idx_dept_age on Spc_clg;
+Query OK, 0 rows affected (0.12 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+mysql> show INDEX from Spc_clg;
++---------+------------+----------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+| Table   | Non_unique | Key_name       | Seq_in_index | Column_name | Collation | Cardinality | Sub_part | Packed | Null | Index_type | Comment | Index_comment | Visible | Expression |
++---------+------------+----------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+| spc_clg |          0 | PRIMARY        |            1 | student_id  | A         |           6 |     NULL |   NULL |      | BTREE      |         |               | YES     | NULL       |
+| spc_clg |          0 | email          |            1 | email       | A         |           6 |     NULL |   NULL | YES  | BTREE      |         |               | YES     | NULL       |
+| spc_clg |          1 | idx_department |            1 | department  | A         |           4 |     NULL |   NULL | YES  | BTREE      |         |               | YES     | NULL       |
++---------+------------+----------------+--------------+-------------+-----------+-------------+----------+--------+------+------------+---------+---------------+---------+------------+
+3 rows in set (0.26 sec)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 

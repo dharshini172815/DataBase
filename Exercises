@@ -1576,7 +1576,119 @@ mysql> select
 +----------+----------------+-----------+-------------+
 9 rows in set (0.00 sec)
 
+----------------------------------------------------------------------------------------------------------------------------------------
 
+VIEWS:
+------
+
+mysql> create table Restaurant (id int auto_increment primary key,
+    -> name varchar(100) not null,
+    -> location varchar(100),
+    -> cuisine_type varchar(50),
+    -> rating decimal(2,1) check (rating between 0 and 5));
+Query OK, 0 rows affected (0.84 sec)
+
+mysql> desc Restaurant;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| id           | int          | NO   | PRI | NULL    | auto_increment |
+| name         | varchar(100) | NO   |     | NULL    |                |
+| location     | varchar(100) | YES  |     | NULL    |                |
+| cuisine_type | varchar(50)  | YES  |     | NULL    |                |
+| rating       | decimal(2,1) | YES  |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+5 rows in set (0.05 sec)
+
+mysql> insert into Restaurant (name, location, cuisine_type, rating)values
+    -> ('Spice Villa', 'Chennai', 'Indian', 4.5),
+    -> ('Ocean Breeze', 'Goa', 'Seafood', 4.2),
+    -> ('Pasta paradise', 'Mumbai', 'Italian', 4.0),
+    -> ('Sakura sushi', 'Pune', 'Japanese', 4.4),
+    -> ('Bella pasta', 'Delhi', 'Italian', 3.9);
+Query OK, 5 rows affected (0.83 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select*from Restaurant;
++----+----------------+----------+--------------+--------+
+| id | name           | location | cuisine_type | rating |
++----+----------------+----------+--------------+--------+
+|  1 | Spice Villa    | Chennai  | Indian       |    4.5 |
+|  2 | Ocean Breeze   | Goa      | Seafood      |    4.2 |
+|  3 | Pasta paradise | Mumbai   | Italian      |    4.0 |
+|  4 | Sakura sushi   | Pune     | Japanese     |    4.4 |
+|  5 | Bella pasta    | Delhi    | Italian      |    3.9 |
++----+----------------+----------+--------------+--------+
+5 rows in set (0.03 sec)
+
+mysql> create view italian_foods as
+    -> select id, name, rating
+    -> from Restaurant
+    -> where cuisine_type = 'Italian';
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> select * from italian_foods;
++----+----------------+--------+
+| id | name           | rating |
++----+----------------+--------+
+|  3 | Pasta paradise |    4.0 |
+|  5 | Bella pasta    |    3.9 |
++----+----------------+--------+
+2 rows in set (0.05 sec)
+
+mysql> create view above_avg_restaurants as
+    -> select id, name, rating
+    -> from Restaurant
+    -> where rating > (select avg(rating) from Restaurant);
+Query OK, 0 rows affected (0.15 sec)
+
+mysql> select*from above_avg_restaurants;
++----+--------------+--------+
+| id | name         | rating |
++----+--------------+--------+
+|  1 | Spice Villa  |    4.5 |
+|  4 | Sakura sushi |    4.4 |
++----+--------------+--------+
+2 rows in set (0.07 sec)
+
+mysql> update italian_foods
+    -> set rating = 4.5
+    -> where name = 'Pasta paradise';
+Query OK, 1 row affected (0.09 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+mysql> select*from Restaurant where id = 3;
++----+----------------+----------+--------------+--------+
+| id | name           | location | cuisine_type | rating |
++----+----------------+----------+--------------+--------+
+|  3 | Pasta paradise | Mumbai   | Italian      |    4.5 |
++----+----------------+----------+--------------+--------+
+1 row in set (0.00 sec)
+
+mysql> select*from italian_foods;
++----+----------------+--------+
+| id | name           | rating |
++----+----------------+--------+
+|  3 | Pasta paradise |    4.5 |
+|  5 | Bella pasta    |    3.9 |
++----+----------------+--------+
+2 rows in set (0.00 sec)
+
+mysql> insert into italian_foods (name, rating) values('Noodles', 4.7);
+Query OK, 1 row affected (0.06 sec)
+
+mysql> select*from Restaurant;
++----+----------------+----------+--------------+--------+
+| id | name           | location | cuisine_type | rating |
++----+----------------+----------+--------------+--------+
+|  1 | Spice Villa    | Chennai  | Indian       |    4.5 |
+|  2 | Ocean Breeze   | Goa      | Seafood      |    4.2 |
+|  3 | Pasta paradise | Mumbai   | Italian      |    4.5 |
+|  4 | Sakura sushi   | Pune     | Japanese     |    4.4 |
+|  5 | Bella pasta    | Delhi    | Italian      |    3.9 |
+|  6 | Noodles        | NULL     | NULL         |    4.7 |
++----+----------------+----------+--------------+--------+
+6 rows in set (0.00 sec)
 
 
 

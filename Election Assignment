@@ -1,0 +1,479 @@
+mysql> create database election;
+Query OK, 1 row affected (0.13 sec)
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| alumni_meet        |
+| election           |
+| exercises          |
+| information_schema |
+| mysql              |
+| performance_schema |
+| sys                |
++--------------------+
+7 rows in set (0.00 sec)
+
+mysql> use election;
+Database changed
+
+mysql> create table party(party_id int primary key auto_increment,
+    -> party_name varchar(50) not null,
+    -> symbol varchar(50));
+Query OK, 0 rows affected (0.39 sec)
+
+mysql> desc party;
++------------+-------------+------+-----+---------+----------------+
+| Field      | Type        | Null | Key | Default | Extra          |
++------------+-------------+------+-----+---------+----------------+
+| party_id   | int         | NO   | PRI | NULL    | auto_increment |
+| party_name | varchar(50) | NO   |     | NULL    |                |
+| symbol     | varchar(50) | YES  |     | NULL    |                |
++------------+-------------+------+-----+---------+----------------+
+3 rows in set (0.01 sec)
+
+mysql> insert into party(party_name, symbol) values
+    -> ('DMK', 'Sun'),
+    -> ('ADMK', 'Two leaves'),
+    -> ('BJP', 'Lotus'),
+    -> ('INC', 'Hand'),
+    -> ('PMK', 'Mango'),
+    -> ('NTK', 'Pot'),
+    -> ('TVK', 'Leo');
+Query OK, 7 rows affected (0.13 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+mysql> select*from party;
++----------+------------+------------+
+| party_id | party_name | symbol     |
++----------+------------+------------+
+|        1 | DMK        | Sun        |
+|        2 | ADMK       | Two leaves |
+|        3 | BJP        | Lotus      |
+|        4 | INC        | Hand       |
+|        5 | PMK        | Mango      |
+|        6 | NTK        | Pot        |
+|        7 | TVK        | Leo        |
++----------+------------+------------+
+7 rows in set (0.00 sec)
+
+mysql> create table constituency(constituency_id int primary key auto_increment,
+    -> constituency_name varchar(50) not null);
+Query OK, 0 rows affected (0.38 sec)
+
+mysql> desc constituency;
++-------------------+-------------+------+-----+---------+----------------+
+| Field             | Type        | Null | Key | Default | Extra          |
++-------------------+-------------+------+-----+---------+----------------+
+| constituency_id   | int         | NO   | PRI | NULL    | auto_increment |
+| constituency_name | varchar(50) | NO   |     | NULL    |                |
++-------------------+-------------+------+-----+---------+----------------+
+2 rows in set (0.01 sec)
+
+mysql> insert into constituency (constituency_name) values
+    -> ('Chennai south'),
+    -> ('Chennai north'),
+    -> ('Coimbatore'),
+    -> ('Madurai'),
+    -> ('Tirunelveli'),
+    -> ('Tenkasi'),
+    -> ('Salem'),
+    -> ('Trichy'),
+    -> ('Erode'),
+    -> ('Thanjavur'),
+    -> ('Kanyakumari');
+Query OK, 11 rows affected (0.08 sec)
+Records: 11  Duplicates: 0  Warnings: 0
+
+mysql> select*from constituency;
++-----------------+-------------------+
+| constituency_id | constituency_name |
++-----------------+-------------------+
+|               1 | Chennai south     |
+|               2 | Chennai north     |
+|               3 | Coimbatore        |
+|               4 | Madurai           |
+|               5 | Tirunelveli       |
+|               6 | Tenkasi           |
+|               7 | Salem             |
+|               8 | Trichy            |
+|               9 | Erode             |
+|              10 | Thanjavur         |
+|              11 | Kanyakumari       |
++-----------------+-------------------+
+11 rows in set (0.00 sec)
+
+mysql> create table candidate(candidate_id int primary key auto_increment,
+    -> candidate_name varchar(100),
+    -> age int,
+    -> party_id int(50),
+    -> foreign key(party_id) references party(party_id),
+    -> constituency_id int,
+    -> foreign key(constituency_id) references constituency(constituency_id));
+Query OK, 0 rows affected, 1 warning (0.54 sec)
+
+mysql> desc candidate;
++-----------------+--------------+------+-----+---------+----------------+
+| Field           | Type         | Null | Key | Default | Extra          |
++-----------------+--------------+------+-----+---------+----------------+
+| candidate_id    | int          | NO   | PRI | NULL    | auto_increment |
+| candidate_name  | varchar(100) | YES  |     | NULL    |                |
+| age             | int          | YES  |     | NULL    |                |
+| party_id        | int          | YES  | MUL | NULL    |                |
+| constituency_id | int          | YES  | MUL | NULL    |                |
++-----------------+--------------+------+-----+---------+----------------+
+5 rows in set (0.01 sec)
+
+mysql> insert into candidate(candidate_name, age, party_id, constituency_id) values 
+    -> ('MK stalin', 68, 1, 1), 
+    -> ('Vanathi srinivasan', 52, 2, 1), 
+    -> ('Aadhi arujunan', 35, 7, 1), 
+    -> ('D. Jayakumar', 61, 3, 2), 
+    -> ('P. K. Sekar Babu', 59, 1, 2), 
+    -> ('K. Arjunan', 58, 3, 3),
+    -> ('Rajkumar', 53, 7, 2),
+    -> ('V.V. Chellappa', 67, 7, 3),
+    -> ('P. moorthi', 39, 7, 5),
+    -> ('Nainar Nagendran', 62, 2, 5),
+    -> ('S. S. Ramasubbu', 67, 1, 5),
+    -> ('V. Sivakumar', 58, 1, 6),
+    -> ('R. Gnanasekaran', 60, 3, 6),
+    -> ('R. Rajendran', 53, 2, 7),
+    -> ('S. A. Ramadoss', 61, 1, 7), 
+    -> ('K.N. Nehru', 68, 7, 8),
+    -> ('Kumaran', 45, 7, 6),
+    -> ('M. Saraswathi', 51, 7, 10),
+    -> ('T. R. Paarivendhar', 66, 4, 8),
+    -> ('E. V. K. S. Elangovan', 75, 1, 9),
+    -> ('Durai Chandrasekaran', 60, 3, 10), 
+    -> ('Anbazhagan A.', 55, 1, 10),
+    -> ('Pon Radhakrishnan', 69, 2, 11),
+    -> ('Thalavai Sundaram', 67, 3, 11);
+Query OK, 24 rows affected (0.12 sec)
+Records: 24  Duplicates: 0  Warnings: 0
+
+mysql> select*from candidate;
++--------------+-----------------------+------+----------+-----------------+
+| candidate_id | candidate_name        | age  | party_id | constituency_id |
++--------------+-----------------------+------+----------+-----------------+
+|            1 | MK stalin             |   68 |        1 |               1 |
+|            2 | Vanathi srinivasan    |   52 |        2 |               1 |
+|            3 | Aadhi arujunan        |   35 |        7 |               1 |
+|            4 | D. Jayakumar          |   61 |        3 |               2 |
+|            5 | P. K. Sekar Babu      |   59 |        1 |               2 |
+|            6 | K. Arjunan            |   58 |        3 |               3 |
+|            7 | Rajkumar              |   53 |        7 |               2 |
+|            8 | V.V. Chellappa        |   67 |        7 |               3 |
+|            9 | P. moorthi            |   39 |        7 |               5 |
+|           10 | Nainar Nagendran      |   62 |        2 |               5 |
+|           11 | S. S. Ramasubbu       |   67 |        1 |               5 |
+|           12 | V. Sivakumar          |   58 |        1 |               6 |
+|           13 | R. Gnanasekaran       |   60 |        3 |               6 |
+|           14 | R. Rajendran          |   53 |        2 |               7 |
+|           15 | S. A. Ramadoss        |   61 |        1 |               7 |
+|           16 | K.N. Nehru            |   68 |        7 |               8 |
+|           17 | Kumaran               |   45 |        7 |               6 |
+|           18 | M. Saraswathi         |   51 |        7 |              10 |
+|           19 | T. R. Paarivendhar    |   66 |        4 |               8 |
+|           20 | E. V. K. S. Elangovan |   75 |        1 |               9 |
+|           21 | Durai Chandrasekaran  |   60 |        3 |              10 |
+|           22 | Anbazhagan A.         |   55 |        1 |              10 |
+|           23 | Pon Radhakrishnan     |   69 |        2 |              11 |
+|           24 | Thalavai Sundaram     |   67 |        3 |              11 |
++--------------+-----------------------+------+----------+-----------------+
+24 rows in set (0.00 sec)
+
+mysql> create table votes(vote_id int primary key auto_increment,
+    -> candidate_id int,
+    -> foreign key(candidate_id) references candidate(candidate_id));
+Query OK, 0 rows affected (0.97 sec)
+
+mysql> desc votes;
++--------------+------+------+-----+---------+----------------+
+| Field        | Type | Null | Key | Default | Extra          |
++--------------+------+------+-----+---------+----------------+
+| vote_id      | int  | NO   | PRI | NULL    | auto_increment |
+| candidate_id | int  | YES  | MUL | NULL    |                |
++--------------+------+------+-----+---------+----------------+
+2 rows in set (0.01 sec)
+
+mysql> delimiter $$
+mysql> create procedure random_votes(In total_votes int)
+    -> BEGIN
+    -> declare i int default 0;
+    -> declare max_candidate_id int;
+    -> select Max(candidate_id) into max_candidate_id from candidate;
+    -> while i<total_votes do
+    ->  insert into votes(candidate_id) values (floor(1+Rand()*max_candidate_id));
+    ->  set i = i+1;
+    -> end while;
+    -> end$$
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> delimiter ;
+mysql> call random_votes(200);
+Query OK, 1 row affected (12.69 sec)
+
+mysql> select * from votes;
++---------+--------------+
+| vote_id | candidate_id |
++---------+--------------+
+|      84 |            1 |
+|     102 |            1 |
+|     128 |            1 |
+|      21 |            2 |
+|      30 |            2 |
+|     103 |            2 |
+|     114 |            2 |
+|     133 |            2 |
+|     134 |            2 |
+|     149 |            2 |
+|     159 |            2 |
+|     168 |            2 |
+|       7 |            3 |
+|      10 |            3 |
+|      33 |            3 |
+|      44 |            3 |
+|      52 |            3 |
+|      64 |            3 |
+|     100 |            3 |
+|     118 |            3 |
+|     132 |            3 |
+|     135 |            4 |
+|     155 |            4 |
+|     158 |            4 |
+|     173 |            4 |
+|      31 |            5 |
+|      62 |            5 |
+|      86 |            5 |
+|     108 |            5 |
+|     109 |            5 |
+|     156 |            5 |
+|     162 |            5 |
+|     189 |            5 |
+|     191 |            5 |
+|       1 |            6 |
+|      16 |            6 |
+|     107 |            6 |
+|     142 |            6 |
+|     185 |            6 |
+|      17 |            7 |
+|      51 |            7 |
+|      75 |            7 |
+|      99 |            7 |
+|     121 |            7 |
+|     129 |            7 |
+|     148 |            7 |
+|      15 |            8 |
+|      55 |            8 |
+|      76 |            8 |
+|     106 |            8 |
+|     140 |            8 |
+|     179 |            8 |
+|     182 |            8 |
+|     200 |            8 |
+|       3 |            9 |
+|      22 |            9 |
+|      24 |            9 |
+|      26 |            9 |
+|      48 |            9 |
+|     104 |            9 |
+|     111 |            9 |
+|     126 |            9 |
+|     130 |            9 |
+|     153 |            9 |
+|     180 |            9 |
+|     190 |            9 |
+|       2 |           10 |
+|       6 |           10 |
+|      50 |           10 |
+|      56 |           10 |
+|      68 |           10 |
+|      73 |           10 |
+|      88 |           10 |
+|     110 |           10 |
+|     139 |           10 |
+|     161 |           10 |
+|       8 |           11 |
+|      14 |           11 |
+|      34 |           11 |
+|      37 |           11 |
+|     113 |           11 |
+|     124 |           11 |
+|     136 |           11 |
+|     141 |           11 |
+|     147 |           11 |
+|     178 |           11 |
+|      58 |           12 |
+|     105 |           12 |
+|     187 |           12 |
+|       4 |           13 |
+|      18 |           13 |
+|      40 |           13 |
+|     122 |           13 |
+|     138 |           13 |
+|     151 |           13 |
+|     166 |           13 |
+|     167 |           13 |
+|     171 |           13 |
+|     188 |           13 |
+|      36 |           14 |
+|      42 |           14 |
+|      63 |           14 |
+|      69 |           14 |
+|      90 |           14 |
+|     150 |           14 |
+|     157 |           14 |
+|     170 |           14 |
+|     197 |           14 |
+|       5 |           15 |
+|      12 |           15 |
+|      38 |           15 |
+|      47 |           15 |
+|     127 |           15 |
+|     177 |           15 |
+|      13 |           16 |
+|      41 |           16 |
+|      45 |           16 |
+|      85 |           16 |
+|     101 |           16 |
+|     186 |           16 |
+|      23 |           17 |
+|      25 |           17 |
+|      29 |           17 |
+|      39 |           17 |
+|      59 |           17 |
+|      70 |           17 |
+|      74 |           17 |
+|      82 |           17 |
+|     144 |           17 |
+|     163 |           17 |
+|     165 |           17 |
+|     196 |           17 |
+|      32 |           18 |
+|      72 |           18 |
+|      94 |           18 |
+|      98 |           18 |
+|     112 |           18 |
+|     125 |           18 |
+|     169 |           18 |
+|     194 |           18 |
+|     198 |           18 |
+|      11 |           19 |
+|      27 |           19 |
+|      35 |           19 |
+|      54 |           19 |
+|      67 |           19 |
+|      71 |           19 |
+|      77 |           19 |
+|      96 |           19 |
+|     116 |           19 |
+|     137 |           19 |
+|      28 |           20 |
+|      53 |           20 |
+|      61 |           20 |
+|      65 |           20 |
+|      78 |           20 |
+|      83 |           20 |
+|      97 |           20 |
+|     123 |           20 |
+|     131 |           20 |
+|     145 |           20 |
+|     184 |           20 |
+|      66 |           21 |
+|     119 |           21 |
+|     154 |           21 |
+|     174 |           21 |
+|     176 |           21 |
+|       9 |           22 |
+|      19 |           22 |
+|      46 |           22 |
+|      49 |           22 |
+|      79 |           22 |
+|      80 |           22 |
+|      81 |           22 |
+|      91 |           22 |
+|      93 |           22 |
+|     117 |           22 |
+|     143 |           22 |
+|     175 |           22 |
+|     181 |           22 |
+|     192 |           22 |
+|     193 |           22 |
+|     199 |           22 |
+|      20 |           23 |
+|      57 |           23 |
+|      89 |           23 |
+|      92 |           23 |
+|     160 |           23 |
+|     164 |           23 |
+|     172 |           23 |
+|      43 |           24 |
+|      60 |           24 |
+|      87 |           24 |
+|      95 |           24 |
+|     115 |           24 |
+|     120 |           24 |
+|     146 |           24 |
+|     152 |           24 |
+|     183 |           24 |
+|     195 |           24 |
++---------+--------------+
+200 rows in set (0.00 sec)
+
+mysql> select c.candidate_id, c.candidate_name, p.party_name,
+    -> count(v.vote_id) as total_votes
+    -> from candidate c
+    -> left join votes v ON c.candidate_id = v.candidate_id
+    -> join party p ON c.party_id = p.party_id
+    -> group by c.candidate_id, c.candidate_name, p.party_name
+    -> order by total_votes desc;
++--------------+-----------------------+------------+-------------+
+| candidate_id | candidate_name        | party_name | total_votes |
++--------------+-----------------------+------------+-------------+
+|           22 | Anbazhagan A.         | DMK        |          16 |
+|            9 | P. moorthi            | TVK        |          12 |
+|           17 | Kumaran               | TVK        |          12 |
+|           20 | E. V. K. S. Elangovan | DMK        |          11 |
+|           10 | Nainar Nagendran      | ADMK       |          10 |
+|           11 | S. S. Ramasubbu       | DMK        |          10 |
+|           13 | R. Gnanasekaran       | BJP        |          10 |
+|           19 | T. R. Paarivendhar    | INC        |          10 |
+|           24 | Thalavai Sundaram     | BJP        |          10 |
+|            2 | Vanathi srinivasan    | ADMK       |           9 |
+|            3 | Aadhi arujunan        | TVK        |           9 |
+|            5 | P. K. Sekar Babu      | DMK        |           9 |
+|           14 | R. Rajendran          | ADMK       |           9 |
+|           18 | M. Saraswathi         | TVK        |           9 |
+|            8 | V.V. Chellappa        | TVK        |           8 |
+|            7 | Rajkumar              | TVK        |           7 |
+|           23 | Pon Radhakrishnan     | ADMK       |           7 |
+|           15 | S. A. Ramadoss        | DMK        |           6 |
+|           16 | K.N. Nehru            | TVK        |           6 |
+|            6 | K. Arjunan            | BJP        |           5 |
+|           21 | Durai Chandrasekaran  | BJP        |           5 |
+|            4 | D. Jayakumar          | BJP        |           4 |
+|            1 | MK stalin             | DMK        |           3 |
+|           12 | V. Sivakumar          | DMK        |           3 |
++--------------+-----------------------+------------+-------------+
+24 rows in set (0.01 sec)
+
+mysql> select c.candidate_id, c.candidate_name, p.party_name,
+    -> count(v.vote_id) as total_votes
+    -> from candidate c
+    -> left join votes v ON c.candidate_id = v.candidate_id
+    -> join party p ON c.party_id = p.party_id
+    -> group by c.candidate_id, c.candidate_name, p.party_name
+    -> order by total_votes desc
+    -> limit 3;
++--------------+----------------+------------+-------------+
+| candidate_id | candidate_name | party_name | total_votes |
++--------------+----------------+------------+-------------+
+|           22 | Anbazhagan A.  | DMK        |          16 |
+|           17 | Kumaran        | TVK        |          12 |
+|            9 | P. moorthi     | TVK        |          12 |
++--------------+----------------+------------+-------------+
+3 rows in set (0.00 sec)
+
+mysql>

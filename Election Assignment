@@ -5281,5 +5281,276 @@ mysql> select c.candidate_id, c.candidate_name, p.party_name,
 +--------------+----------------+------------+-------------+
 3 rows in set (0.01 sec)
 
+--------------------------------------------------------------------------------
+
+mysql> create database election_assignment;
+Query OK, 1 row affected (0.32 sec)
+
+mysql> use election_assignment;
+Database changed
+
+mysql> create table parties(
+    -> party_id int primary key,
+    -> party_name varchar(50) unique,
+    -> symbol varchar(50),
+    -> cm_candidate varchar(50));
+Query OK, 0 rows affected (0.96 sec)
+
+mysql> desc parties;
++--------------+-------------+------+-----+---------+-------+
+| Field        | Type        | Null | Key | Default | Extra |
++--------------+-------------+------+-----+---------+-------+
+| party_id     | int         | NO   | PRI | NULL    |       |
+| party_name   | varchar(50) | YES  | UNI | NULL    |       |
+| symbol       | varchar(50) | YES  |     | NULL    |       |
+| cm_candidate | varchar(50) | YES  |     | NULL    |       |
++--------------+-------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+mysql> insert into parties values
+    -> (1, 'DMK', 'Sun', 'MK Stalin'),
+    -> (2, 'ADMK', 'Two leaves', 'EPS'),
+    -> (3, 'TVK', 'Leo', 'Vijay'),
+    -> (4, 'NTK', 'Auto', 'Seeman'),
+    -> (5, 'MNM', 'Torch light', 'Kamal'),
+    -> (6, 'PMK', 'Mango', 'Ramadas');
+Query OK, 6 rows affected (0.12 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+mysql> select*from parties;
++----------+------------+-------------+--------------+
+| party_id | party_name | symbol      | cm_candidate |
++----------+------------+-------------+--------------+
+|        1 | DMK        | Sun         | MK Stalin    |
+|        2 | ADMK       | Two leaves  | EPS          |
+|        3 | TVK        | Leo         | Vijay        |
+|        4 | NTK        | Auto        | Seeman       |
+|        5 | MNM        | Torch light | Kamal        |
+|        6 | PMK        | Mango       | Ramadas      |
++----------+------------+-------------+--------------+
+6 rows in set (0.00 sec)
+
+mysql> create table constituency (constituency_id int primary key,
+    -> constituency_name varchar(50));
+Query OK, 0 rows affected (0.47 sec)
+
+mysql> desc constituency;
++-------------------+-------------+------+-----+---------+-------+
+| Field             | Type        | Null | Key | Default | Extra |
++-------------------+-------------+------+-----+---------+-------+
+| constituency_id   | int         | NO   | PRI | NULL    |       |
+| constituency_name | varchar(50) | YES  |     | NULL    |       |
++-------------------+-------------+------+-----+---------+-------+
+2 rows in set (0.01 sec)
+
+mysql> insert into constituency values
+    -> (101, 'Chennai central'),
+    -> (102, 'Chennai south'),
+    -> (103, 'Chennai north'),
+    -> (104, 'Coimbatore north'),
+    -> (105, 'Coimbatore south'),
+    -> (106, 'Madurai central'),
+    -> (107, 'Madurai north'),
+    -> (108, 'Madurai south'),
+    -> (109, 'Salem North'),
+    -> (110, 'Salem south'),
+    -> (111, 'Trichy'),
+    -> (112, 'Tirunelveli'),
+    -> (113, 'Erode'),
+    -> (114, 'Kanyakumari'),
+    -> (115, 'Namakkal');
+Query OK, 15 rows affected (0.10 sec)
+Records: 15  Duplicates: 0  Warnings: 0
+
+mysql> select*from constituency;
++-----------------+-------------------+
+| constituency_id | constituency_name |
++-----------------+-------------------+
+|             101 | Chennai central   |
+|             102 | Chennai south     |
+|             103 | Chennai north     |
+|             104 | Coimbatore north  |
+|             105 | Coimbatore south  |
+|             106 | Madurai central   |
+|             107 | Madurai north     |
+|             108 | Madurai south     |
+|             109 | Salem North       |
+|             110 | Salem south       |
+|             111 | Trichy            |
+|             112 | Tirunelveli       |
+|             113 | Erode             |
+|             114 | Kanyakumari       |
+|             115 | Namakkal          |
++-----------------+-------------------+
+15 rows in set (0.00 sec)
+
+mysql> create table ward(ward_no int primary key,
+    -> name varchar(50));
+Query OK, 0 rows affected (0.77 sec)
+
+mysql> desc ward;
++---------+-------------+------+-----+---------+-------+
+| Field   | Type        | Null | Key | Default | Extra |
++---------+-------------+------+-----+---------+-------+
+| ward_no | int         | NO   | PRI | NULL    |       |
+| name    | varchar(50) | YES  |     | NULL    |       |
++---------+-------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+
+mysql> insert into ward values
+    -> (1, 'ward A'),
+    -> (2, 'ward B'),
+    -> (3, 'ward C'),
+    -> (4, 'ward D');
+Query OK, 4 rows affected (0.08 sec)
+Records: 4  Duplicates: 0  Warnings: 0
+
+mysql> select*from ward;
++---------+--------+
+| ward_no | name   |
++---------+--------+
+|       1 | ward A |
+|       2 | ward B |
+|       3 | ward C |
+|       4 | ward D |
++---------+--------+
+4 rows in set (0.00 sec)
+
+
+mysql> create table candidate
+    -> (candidate_id int primary key,
+    -> name varchar(50),
+    -> constituency_id int,
+    -> party_name varchar(50),
+    -> ward_no int,
+    -> votes int default 0,
+    -> foreign key(constituency_id) references constituency(constituency_id),
+    -> foreign key(ward_no) references ward(ward_no),
+    -> foreign key(party_name) references parties(party_name));
+Query OK, 0 rows affected (1.67 sec)
+
+mysql> desc candidate;
++-----------------+-------------+------+-----+---------+-------+
+| Field           | Type        | Null | Key | Default | Extra |
++-----------------+-------------+------+-----+---------+-------+
+| candidate_id    | int         | NO   | PRI | NULL    |       |
+| name            | varchar(50) | YES  |     | NULL    |       |
+| constituency_id | int         | YES  | MUL | NULL    |       |
+| party_name      | varchar(50) | YES  | MUL | NULL    |       |
+| ward_no         | int         | YES  | MUL | NULL    |       |
+| votes           | int         | YES  |     | 0       |       |
++-----------------+-------------+------+-----+---------+-------+
+6 rows in set (0.00 sec)
+
+mysql> insert into candidate values
+    -> (1, 'Ram', 101, 'DMK', 1, 0),
+    -> (2, 'Pooja', 101, 'DMK', 2, 0),
+    -> (3, 'Shivakumar', 101, 'DMK', 3, 0),
+    -> (4, 'Lakshmi ramakrishnan', 102, 'DMK', 1, 0),
+    -> (5, 'Kumar', 102, 'DMK', 2, 0),
+    -> (6, 'Vadivelu', 102, 'DMK', 3, 0),
+    -> (7, 'Soundarya', 103, 'DMK', 1, 0),
+    -> (8, 'Thanga durai', 103, 'DMK', 2, 0),
+    -> (9, 'Raju jeyamohan', 103, 'DMK', 3, 0),
+    -> (10, 'Madhan', 104, 'DMK', 1, 0),
+    -> (11, 'Pugazh', 104, 'DMK', 2, 0),
+    -> (12, 'Selva', 104, 'DMK', 3, 0),
+    -> (13, 'Pavithra', 105, 'DMK', 1, 0),
+    -> (14, 'Sarath', 105, 'DMK', 2, 0),
+    -> (15, 'Sundari', 105, 'DMK', 3, 0),
+    -> (16, 'Pugazhendhi', 106, 'DMK', 1, 0),
+    -> (17, 'Umair khan', 106, 'DMK', 2, 0),
+    -> (18, 'Sarjith', 106, 'DMK', 3, 0),
+    -> (19, 'Moorthi', 107, 'DMK', 1, 0),
+    -> (20, 'Sanju', 107, 'DMK', 2, 0),
+    -> (21, 'Narayanan', 107, 'DMK', 3, 0),
+    -> (22, 'Rajeswari', 108, 'DMK', 1, 0),
+    -> (23, 'Durai sami', 108, 'DMK', 2, 0),
+    -> (24, 'Kesavan', 108, 'DMK', 3, 0),
+    -> (25, 'MK Kumar', 105, 'ADMK', 1, 0),
+    -> (26, 'Revathi', 105, 'ADMK', 2, 0),
+    -> (27, 'Dharshini', 105, 'ADMK', 3, 0),
+    -> (28, 'Raj', 106, 'ADMK', 1, 0),
+    -> (29, 'Karuppan', 106, 'ADMK', 2, 0),
+    -> (30, 'Raman', 106, 'ADMK', 3, 0),
+    -> (31, 'Ranjith', 107, 'ADMK', 1, 0),
+    -> (32, 'Murugan', 107, 'ADMK', 2, 0),
+    -> (33, 'Divya', 107, 'ADMK', 3, 0),
+    -> (34, 'Ramya', 108, 'ADMK', 1, 0),
+    -> (35, 'Anitha', 108, 'ADMK', 2, 0),
+    -> (36, 'Pushpa', 108, 'ADMK', 3, 0),
+    -> (37, 'Arun', 109, 'ADMK', 1, 0),
+    -> (38, 'Sasikumar', 109, 'ADMK', 2, 0),
+    -> (39, 'Prabha', 109, 'ADMK', 3, 0),
+    -> (40, 'Manimala', 110, 'ADMK', 1, 0),
+    -> (41, 'Balakumar', 110, 'ADMK', 2, 0),
+    -> (42, 'Chelladurai', 110, 'ADMK', 3, 0),
+    -> (43, 'Sethupathi', 111, 'ADMK', 1, 0),
+    -> (44, 'Aniruth', 111, 'ADMK', 2, 0),
+    -> (45, 'Nithish', 111, 'ADMK', 3, 0),
+    -> (46, 'Varun', 112, 'ADMK', 1, 0),
+    -> (47, 'Badri', 112, 'ADMK', 2, 0),
+    -> (48, 'Balaji', 112, 'ADMK', 3, 0),
+    -> (49, 'Paramasivan', 113, 'ADMK', 1, 0),
+    -> (50, 'Murugan', 113, 'ADMK', 2, 0);
+Query OK, 50 rows affected (0.14 sec)
+Records: 50  Duplicates: 0  Warnings: 0
+
+
+
+
+mysql> delimiter $$
+mysql> create procedure randomVotes()
+    -> begin
+    -> declare done int default 0;
+    -> declare cid int;
+    -> declare cur cursor for select candidate_id from candidate;
+    -> declare continue handler for not found set done = 1;
+    -> open cur;
+    -> vote_loop: LOOP
+    -> fetch cur into cid;
+    -> if done then
+    -> leave vote_loop;
+    -> end if;
+    -> update candidate set votes = floor(1000 + RAND()*9000) where candidate_id = cid;
+    -> end LOOP;
+    -> close cur;
+    -> end $$
+Query OK, 0 rows affected (0.11 sec)
+
+mysql> delimiter ;
+mysql> call randomVotes();
+Query OK, 0 rows affected (3.60 sec)
+
+
+mysql> select c.constituency_id, cs.constituency_name,
+    -> c.name AS candidate_name,
+    -> c.party_name, c.votes
+    -> from candidate c
+    -> join constituency cs ON c.constituency_id = cs.constituency_id
+    -> where (c.constituency_id, c.votes) IN (
+    -> select constituency_id, MAX(votes) from candidate
+    -> group by constituency_id)
+    -> order by c.constituency_id;
++-----------------+-------------------+----------------------+------------+-------+
+| constituency_id | constituency_name | candidate_name       | party_name | votes |
++-----------------+-------------------+----------------------+------------+-------+
+|             101 | Chennai central   | Ram                  | DMK        |  8236 |
+|             102 | Chennai south     | Lakshmi ramakrishnan | DMK        |  7690 |
+|             103 | Chennai north     | Soundarya            | DMK        |  7902 |
+|             104 | Coimbatore north  | Madhan               | DMK        |  3531 |
+|             105 | Coimbatore south  | Dharshini            | ADMK       |  8922 |
+|             106 | Madurai central   | Karuppan             | ADMK       |  7495 |
+|             107 | Madurai north     | Narayanan            | DMK        |  9307 |
+|             108 | Madurai south     | Kesavan              | DMK        |  8909 |
+|             109 | Salem North       | Arun                 | ADMK       |  9102 |
+|             110 | Salem south       | Balakumar            | ADMK       |  6556 |
+|             111 | Trichy            | Nithish              | ADMK       |  8626 |
+|             112 | Tirunelveli       | Varun                | ADMK       |  8349 |
+|             113 | Erode             | Paramasivan          | ADMK       |  6812 |
++-----------------+-------------------+----------------------+------------+-------+
+13 rows in set (0.09 sec)
+
+
 
 

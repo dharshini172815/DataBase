@@ -5283,274 +5283,383 @@ mysql> select c.candidate_id, c.candidate_name, p.party_name,
 
 --------------------------------------------------------------------------------
 
-mysql> create database election_assignment;
-Query OK, 1 row affected (0.32 sec)
+mysql> create database if not exists election_result;
+Query OK, 1 row affected (0.03 sec)
 
-mysql> use election_assignment;
+mysql> use election_result;
 Database changed
-
-mysql> create table parties(
-    -> party_id int primary key,
-    -> party_name varchar(50) unique,
-    -> symbol varchar(50),
-    -> cm_candidate varchar(50));
-Query OK, 0 rows affected (0.96 sec)
-
-mysql> desc parties;
-+--------------+-------------+------+-----+---------+-------+
-| Field        | Type        | Null | Key | Default | Extra |
-+--------------+-------------+------+-----+---------+-------+
-| party_id     | int         | NO   | PRI | NULL    |       |
-| party_name   | varchar(50) | YES  | UNI | NULL    |       |
-| symbol       | varchar(50) | YES  |     | NULL    |       |
-| cm_candidate | varchar(50) | YES  |     | NULL    |       |
-+--------------+-------------+------+-----+---------+-------+
-4 rows in set (0.01 sec)
-
-mysql> insert into parties values
-    -> (1, 'DMK', 'Sun', 'MK Stalin'),
-    -> (2, 'ADMK', 'Two leaves', 'EPS'),
-    -> (3, 'TVK', 'Leo', 'Vijay'),
-    -> (4, 'NTK', 'Auto', 'Seeman'),
-    -> (5, 'MNM', 'Torch light', 'Kamal'),
-    -> (6, 'PMK', 'Mango', 'Ramadas');
-Query OK, 6 rows affected (0.12 sec)
-Records: 6  Duplicates: 0  Warnings: 0
-
-mysql> select*from parties;
-+----------+------------+-------------+--------------+
-| party_id | party_name | symbol      | cm_candidate |
-+----------+------------+-------------+--------------+
-|        1 | DMK        | Sun         | MK Stalin    |
-|        2 | ADMK       | Two leaves  | EPS          |
-|        3 | TVK        | Leo         | Vijay        |
-|        4 | NTK        | Auto        | Seeman       |
-|        5 | MNM        | Torch light | Kamal        |
-|        6 | PMK        | Mango       | Ramadas      |
-+----------+------------+-------------+--------------+
-6 rows in set (0.00 sec)
-
-mysql> create table constituency (constituency_id int primary key,
-    -> constituency_name varchar(50));
-Query OK, 0 rows affected (0.47 sec)
-
-mysql> desc constituency;
-+-------------------+-------------+------+-----+---------+-------+
-| Field             | Type        | Null | Key | Default | Extra |
-+-------------------+-------------+------+-----+---------+-------+
-| constituency_id   | int         | NO   | PRI | NULL    |       |
-| constituency_name | varchar(50) | YES  |     | NULL    |       |
-+-------------------+-------------+------+-----+---------+-------+
-2 rows in set (0.01 sec)
-
-mysql> insert into constituency values
-    -> (101, 'Chennai central'),
-    -> (102, 'Chennai south'),
-    -> (103, 'Chennai north'),
-    -> (104, 'Coimbatore north'),
-    -> (105, 'Coimbatore south'),
-    -> (106, 'Madurai central'),
-    -> (107, 'Madurai north'),
-    -> (108, 'Madurai south'),
-    -> (109, 'Salem North'),
-    -> (110, 'Salem south'),
-    -> (111, 'Trichy'),
-    -> (112, 'Tirunelveli'),
-    -> (113, 'Erode'),
-    -> (114, 'Kanyakumari'),
-    -> (115, 'Namakkal');
-Query OK, 15 rows affected (0.10 sec)
-Records: 15  Duplicates: 0  Warnings: 0
-
-mysql> select*from constituency;
-+-----------------+-------------------+
-| constituency_id | constituency_name |
-+-----------------+-------------------+
-|             101 | Chennai central   |
-|             102 | Chennai south     |
-|             103 | Chennai north     |
-|             104 | Coimbatore north  |
-|             105 | Coimbatore south  |
-|             106 | Madurai central   |
-|             107 | Madurai north     |
-|             108 | Madurai south     |
-|             109 | Salem North       |
-|             110 | Salem south       |
-|             111 | Trichy            |
-|             112 | Tirunelveli       |
-|             113 | Erode             |
-|             114 | Kanyakumari       |
-|             115 | Namakkal          |
-+-----------------+-------------------+
-15 rows in set (0.00 sec)
-
-mysql> create table ward(ward_no int primary key,
-    -> name varchar(50));
-Query OK, 0 rows affected (0.77 sec)
-
-mysql> desc ward;
-+---------+-------------+------+-----+---------+-------+
-| Field   | Type        | Null | Key | Default | Extra |
-+---------+-------------+------+-----+---------+-------+
-| ward_no | int         | NO   | PRI | NULL    |       |
-| name    | varchar(50) | YES  |     | NULL    |       |
-+---------+-------------+------+-----+---------+-------+
-2 rows in set (0.00 sec)
-
-mysql> insert into ward values
-    -> (1, 'ward A'),
-    -> (2, 'ward B'),
-    -> (3, 'ward C'),
-    -> (4, 'ward D');
-Query OK, 4 rows affected (0.08 sec)
-Records: 4  Duplicates: 0  Warnings: 0
-
-mysql> select*from ward;
-+---------+--------+
-| ward_no | name   |
-+---------+--------+
-|       1 | ward A |
-|       2 | ward B |
-|       3 | ward C |
-|       4 | ward D |
-+---------+--------+
-4 rows in set (0.00 sec)
-
-
-mysql> create table candidate
-    -> (candidate_id int primary key,
-    -> name varchar(50),
-    -> constituency_id int,
-    -> party_name varchar(50),
-    -> ward_no int,
-    -> votes int default 0,
-    -> foreign key(constituency_id) references constituency(constituency_id),
-    -> foreign key(ward_no) references ward(ward_no),
-    -> foreign key(party_name) references parties(party_name));
-Query OK, 0 rows affected (1.67 sec)
-
-mysql> desc candidate;
-+-----------------+-------------+------+-----+---------+-------+
-| Field           | Type        | Null | Key | Default | Extra |
-+-----------------+-------------+------+-----+---------+-------+
-| candidate_id    | int         | NO   | PRI | NULL    |       |
-| name            | varchar(50) | YES  |     | NULL    |       |
-| constituency_id | int         | YES  | MUL | NULL    |       |
-| party_name      | varchar(50) | YES  | MUL | NULL    |       |
-| ward_no         | int         | YES  | MUL | NULL    |       |
-| votes           | int         | YES  |     | 0       |       |
-+-----------------+-------------+------+-----+---------+-------+
-6 rows in set (0.00 sec)
-
-mysql> insert into candidate values
-    -> (1, 'Ram', 101, 'DMK', 1, 0),
-    -> (2, 'Pooja', 101, 'DMK', 2, 0),
-    -> (3, 'Shivakumar', 101, 'DMK', 3, 0),
-    -> (4, 'Lakshmi ramakrishnan', 102, 'DMK', 1, 0),
-    -> (5, 'Kumar', 102, 'DMK', 2, 0),
-    -> (6, 'Vadivelu', 102, 'DMK', 3, 0),
-    -> (7, 'Soundarya', 103, 'DMK', 1, 0),
-    -> (8, 'Thanga durai', 103, 'DMK', 2, 0),
-    -> (9, 'Raju jeyamohan', 103, 'DMK', 3, 0),
-    -> (10, 'Madhan', 104, 'DMK', 1, 0),
-    -> (11, 'Pugazh', 104, 'DMK', 2, 0),
-    -> (12, 'Selva', 104, 'DMK', 3, 0),
-    -> (13, 'Pavithra', 105, 'DMK', 1, 0),
-    -> (14, 'Sarath', 105, 'DMK', 2, 0),
-    -> (15, 'Sundari', 105, 'DMK', 3, 0),
-    -> (16, 'Pugazhendhi', 106, 'DMK', 1, 0),
-    -> (17, 'Umair khan', 106, 'DMK', 2, 0),
-    -> (18, 'Sarjith', 106, 'DMK', 3, 0),
-    -> (19, 'Moorthi', 107, 'DMK', 1, 0),
-    -> (20, 'Sanju', 107, 'DMK', 2, 0),
-    -> (21, 'Narayanan', 107, 'DMK', 3, 0),
-    -> (22, 'Rajeswari', 108, 'DMK', 1, 0),
-    -> (23, 'Durai sami', 108, 'DMK', 2, 0),
-    -> (24, 'Kesavan', 108, 'DMK', 3, 0),
-    -> (25, 'MK Kumar', 105, 'ADMK', 1, 0),
-    -> (26, 'Revathi', 105, 'ADMK', 2, 0),
-    -> (27, 'Dharshini', 105, 'ADMK', 3, 0),
-    -> (28, 'Raj', 106, 'ADMK', 1, 0),
-    -> (29, 'Karuppan', 106, 'ADMK', 2, 0),
-    -> (30, 'Raman', 106, 'ADMK', 3, 0),
-    -> (31, 'Ranjith', 107, 'ADMK', 1, 0),
-    -> (32, 'Murugan', 107, 'ADMK', 2, 0),
-    -> (33, 'Divya', 107, 'ADMK', 3, 0),
-    -> (34, 'Ramya', 108, 'ADMK', 1, 0),
-    -> (35, 'Anitha', 108, 'ADMK', 2, 0),
-    -> (36, 'Pushpa', 108, 'ADMK', 3, 0),
-    -> (37, 'Arun', 109, 'ADMK', 1, 0),
-    -> (38, 'Sasikumar', 109, 'ADMK', 2, 0),
-    -> (39, 'Prabha', 109, 'ADMK', 3, 0),
-    -> (40, 'Manimala', 110, 'ADMK', 1, 0),
-    -> (41, 'Balakumar', 110, 'ADMK', 2, 0),
-    -> (42, 'Chelladurai', 110, 'ADMK', 3, 0),
-    -> (43, 'Sethupathi', 111, 'ADMK', 1, 0),
-    -> (44, 'Aniruth', 111, 'ADMK', 2, 0),
-    -> (45, 'Nithish', 111, 'ADMK', 3, 0),
-    -> (46, 'Varun', 112, 'ADMK', 1, 0),
-    -> (47, 'Badri', 112, 'ADMK', 2, 0),
-    -> (48, 'Balaji', 112, 'ADMK', 3, 0),
-    -> (49, 'Paramasivan', 113, 'ADMK', 1, 0),
-    -> (50, 'Murugan', 113, 'ADMK', 2, 0);
-Query OK, 50 rows affected (0.14 sec)
-Records: 50  Duplicates: 0  Warnings: 0
-
-
-
-
-mysql> delimiter $$
-mysql> create procedure randomVotes()
-    -> begin
-    -> declare done int default 0;
-    -> declare cid int;
-    -> declare cur cursor for select candidate_id from candidate;
-    -> declare continue handler for not found set done = 1;
-    -> open cur;
-    -> vote_loop: LOOP
-    -> fetch cur into cid;
-    -> if done then
-    -> leave vote_loop;
-    -> end if;
-    -> update candidate set votes = floor(1000 + RAND()*9000) where candidate_id = cid;
-    -> end LOOP;
-    -> close cur;
-    -> end $$
+mysql> CREATE TABLE Party (
+    ->     Party_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     Party_name VARCHAR(100) NOT NULL,
+    ->     CM_candidate VARCHAR(100) NOT NULL
+    -> );
 Query OK, 0 rows affected (0.11 sec)
 
-mysql> delimiter ;
-mysql> call randomVotes();
-Query OK, 0 rows affected (3.60 sec)
+mysql> desc Party;
++--------------+--------------+------+-----+---------+----------------+
+| Field        | Type         | Null | Key | Default | Extra          |
++--------------+--------------+------+-----+---------+----------------+
+| Party_id     | int          | NO   | PRI | NULL    | auto_increment |
+| Party_name   | varchar(100) | NO   |     | NULL    |                |
+| CM_candidate | varchar(100) | NO   |     | NULL    |                |
++--------------+--------------+------+-----+---------+----------------+
+3 rows in set (0.01 sec)
 
+mysql> CREATE TABLE Constituency (
+    ->     Constituency_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     Constituency_name VARCHAR(100) NOT NULL
+    -> );
+Query OK, 0 rows affected (0.12 sec)
 
-mysql> select c.constituency_id, cs.constituency_name,
-    -> c.name AS candidate_name,
-    -> c.party_name, c.votes
-    -> from candidate c
-    -> join constituency cs ON c.constituency_id = cs.constituency_id
-    -> where (c.constituency_id, c.votes) IN (
-    -> select constituency_id, MAX(votes) from candidate
-    -> group by constituency_id)
-    -> order by c.constituency_id;
-+-----------------+-------------------+----------------------+------------+-------+
-| constituency_id | constituency_name | candidate_name       | party_name | votes |
-+-----------------+-------------------+----------------------+------------+-------+
-|             101 | Chennai central   | Ram                  | DMK        |  8236 |
-|             102 | Chennai south     | Lakshmi ramakrishnan | DMK        |  7690 |
-|             103 | Chennai north     | Soundarya            | DMK        |  7902 |
-|             104 | Coimbatore north  | Madhan               | DMK        |  3531 |
-|             105 | Coimbatore south  | Dharshini            | ADMK       |  8922 |
-|             106 | Madurai central   | Karuppan             | ADMK       |  7495 |
-|             107 | Madurai north     | Narayanan            | DMK        |  9307 |
-|             108 | Madurai south     | Kesavan              | DMK        |  8909 |
-|             109 | Salem North       | Arun                 | ADMK       |  9102 |
-|             110 | Salem south       | Balakumar            | ADMK       |  6556 |
-|             111 | Trichy            | Nithish              | ADMK       |  8626 |
-|             112 | Tirunelveli       | Varun                | ADMK       |  8349 |
-|             113 | Erode             | Paramasivan          | ADMK       |  6812 |
-+-----------------+-------------------+----------------------+------------+-------+
-13 rows in set (0.09 sec)
+mysql> desc Constituency;
++-------------------+--------------+------+-----+---------+----------------+
+| Field             | Type         | Null | Key | Default | Extra          |
++-------------------+--------------+------+-----+---------+----------------+
+| Constituency_id   | int          | NO   | PRI | NULL    | auto_increment |
+| Constituency_name | varchar(100) | NO   |     | NULL    |                |
++-------------------+--------------+------+-----+---------+----------------+
+2 rows in set (0.00 sec)
 
+mysql> CREATE TABLE Ward (
+    ->     Ward_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     Constituency_id INT NOT NULL,
+    ->     FOREIGN KEY (Constituency_id) REFERENCES Constituency(Constituency_id)
+    -> );
+Query OK, 0 rows affected (0.13 sec)
 
+mysql> desc Ward;
++-----------------+------+------+-----+---------+----------------+
+| Field           | Type | Null | Key | Default | Extra          |
++-----------------+------+------+-----+---------+----------------+
+| Ward_id         | int  | NO   | PRI | NULL    | auto_increment |
+| Constituency_id | int  | NO   | MUL | NULL    |                |
++-----------------+------+------+-----+---------+----------------+
+2 rows in set (0.01 sec)
 
+mysql> CREATE TABLE Voter (
+    ->     Voter_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     Name VARCHAR(100) NOT NULL,
+    ->     Age INT CHECK (Age >= 18),
+    ->     Gender ENUM('Male', 'Female', 'Others'),
+    ->     Ward_id INT NOT NULL,
+    ->     FOREIGN KEY (Ward_id) REFERENCES Ward(Ward_id)
+    -> );
+Query OK, 0 rows affected (0.14 sec)
 
+mysql> desc Voter;
++----------+--------------------------------+------+-----+---------+----------------+
+| Field    | Type                           | Null | Key | Default | Extra          |
++----------+--------------------------------+------+-----+---------+----------------+
+| Voter_id | int                            | NO   | PRI | NULL    | auto_increment |
+| Name     | varchar(100)                   | NO   |     | NULL    |                |
+| Age      | int                            | YES  |     | NULL    |                |
+| Gender   | enum('Male','Female','Others') | YES  |     | NULL    |                |
+| Ward_id  | int                            | NO   | MUL | NULL    |                |
++----------+--------------------------------+------+-----+---------+----------------+
+5 rows in set (0.00 sec)
+
+mysql> CREATE TABLE Candidate (
+    ->     Candidate_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     Candidate_name VARCHAR(100) NOT NULL,
+    ->     Party_id INT NOT NULL,
+    ->     Constituency_id INT NOT NULL,
+    ->     FOREIGN KEY (Party_id) REFERENCES Party(Party_id),
+    ->     FOREIGN KEY (Constituency_id) REFERENCES Constituency(Constituency_id)
+    -> );
+Query OK, 0 rows affected (0.17 sec)
+
+mysql> desc Candidate;
++-----------------+--------------+------+-----+---------+----------------+
+| Field           | Type         | Null | Key | Default | Extra          |
++-----------------+--------------+------+-----+---------+----------------+
+| Candidate_id    | int          | NO   | PRI | NULL    | auto_increment |
+| Candidate_name  | varchar(100) | NO   |     | NULL    |                |
+| Party_id        | int          | NO   | MUL | NULL    |                |
+| Constituency_id | int          | NO   | MUL | NULL    |                |
++-----------------+--------------+------+-----+---------+----------------+
+4 rows in set (0.01 sec)
+
+mysql> CREATE TABLE Vote (
+    ->     Vote_id INT PRIMARY KEY AUTO_INCREMENT,
+    ->     Voter_id INT NOT NULL,
+    ->     Candidate_id INT NOT NULL,
+    ->     FOREIGN KEY (Voter_id) REFERENCES Voter(Voter_id),
+    ->     FOREIGN KEY (Candidate_id) REFERENCES Candidate(Candidate_id)
+    -> );
+Query OK, 0 rows affected (0.14 sec)
+
+mysql> desc Vote;
++--------------+------+------+-----+---------+----------------+
+| Field        | Type | Null | Key | Default | Extra          |
++--------------+------+------+-----+---------+----------------+
+| Vote_id      | int  | NO   | PRI | NULL    | auto_increment |
+| Voter_id     | int  | NO   | MUL | NULL    |                |
+| Candidate_id | int  | NO   | MUL | NULL    |                |
++--------------+------+------+-----+---------+----------------+
+3 rows in set (0.01 sec)
+
+mysql> INSERT INTO Party (Party_name, CM_candidate) VALUES
+    -> ('TVK', 'Vijay'),
+    -> ('BJP', 'Annamalai'),
+    -> ('NTK', 'Seeman'),
+    -> ('ADMK', 'EPS'),
+    -> ('DMK', 'Stalin');
+Query OK, 5 rows affected (0.05 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+mysql> select*from Party;
++----------+------------+--------------+
+| Party_id | Party_name | CM_candidate |
++----------+------------+--------------+
+|        1 | TVK        | Vijay        |
+|        2 | BJP        | Annamalai    |
+|        3 | NTK        | Seeman       |
+|        4 | ADMK       | EPS          |
+|        5 | DMK        | Stalin       |
++----------+------------+--------------+
+5 rows in set (0.00 sec)
+
+mysql> INSERT INTO Constituency (Constituency_name) VALUES
+    -> ('Chennai'),
+    -> ('Madurai'),
+    -> ('Coimbatore'),
+    -> ('Trichy'),
+    -> ('Salem'),
+    -> ('Tenkasi'),
+    -> ('Tirunelveli'),
+    -> ('Namakkal'),
+    -> ('Erode'),
+    -> ('Thoothukudi');
+Query OK, 10 rows affected (0.02 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+mysql> select*from Constituency;
++-----------------+-------------------+
+| Constituency_id | Constituency_name |
++-----------------+-------------------+
+|               1 | Chennai           |
+|               2 | Madurai           |
+|               3 | Coimbatore        |
+|               4 | Trichy            |
+|               5 | Salem             |
+|               6 | Tenkasi           |
+|               7 | Tirunelveli       |
+|               8 | Namakkal          |
+|               9 | Erode             |
+|              10 | Thoothukudi       |
++-----------------+-------------------+
+10 rows in set (0.00 sec)
+
+mysql> insert into Ward (Constituency_id) values
+    -> (1),
+    -> (1),
+    -> (1),
+    -> (2),
+    -> (2),
+    -> (2),
+    -> (3),
+    -> (3),
+    -> (3),
+    -> (4),
+    -> (4),
+    -> (4),
+    -> (5),
+    -> (5),
+    -> (5),
+    -> (6),
+    -> (6),
+    -> (6),
+    -> (7),
+    -> (7),
+    -> (7),
+    -> (8),
+    -> (8),
+    -> (8),
+    -> (9),
+    -> (9),
+    -> (9),
+    -> (10),
+    -> (10),
+    -> (10);
+Query OK, 30 rows affected (0.03 sec)
+Records: 30  Duplicates: 0  Warnings: 0
+
+mysql> select*from Ward;
++---------+-----------------+
+| Ward_id | Constituency_id |
++---------+-----------------+
+|       1 |               1 |
+|       2 |               1 |
+|       3 |               1 |
+|       4 |               2 |
+|       5 |               2 |
+|       6 |               2 |
+|       7 |               3 |
+|       8 |               3 |
+|       9 |               3 |
+|      10 |               4 |
+|      11 |               4 |
+|      12 |               4 |
+|      13 |               5 |
+|      14 |               5 |
+|      15 |               5 |
+|      16 |               6 |
+|      17 |               6 |
+|      18 |               6 |
+|      19 |               7 |
+|      20 |               7 |
+|      21 |               7 |
+|      22 |               8 |
+|      23 |               8 |
+|      24 |               8 |
+|      25 |               9 |
+|      26 |               9 |
+|      27 |               9 |
+|      28 |              10 |
+|      29 |              10 |
+|      30 |              10 |
++---------+-----------------+
+30 rows in set (0.00 sec)
+
+mysql> INSERT INTO Candidate (Candidate_name, Party_id, Constituency_id) VALUES
+    -> ('Vijay', 1, 1), ('Annamalai', 2, 1), ('Seeman', 3, 1), ('EPS', 4, 1), ('Stalin', 5, 1),
+    -> ('Ajith', 1, 2), ('Kumaravel', 2, 2), ('Thirumurugan', 3, 2), ('Jayakumar', 4, 2), ('Raja', 5, 2),
+    -> ('Dhanush', 1, 3), ('Ilango', 2, 3), ('Gowtham', 3, 3), ('Natarajan', 4, 3), ('Balu', 5, 3),
+    -> ('Suriya', 1, 4), ('Murugan', 2, 4), ('Marimuthu', 3, 4), ('Ponnusamy', 4, 4), ('Karunanidhi', 5, 4),
+    -> ('Karthi', 1, 5), ('Ravi', 2, 5), ('Velu', 3, 5), ('Perumal', 4, 5), ('Ramasamy', 5, 5),
+    -> ('Arya', 1, 6), ('Thangavel', 2, 6), ('Senthil', 3, 6), ('Muthiah', 4, 6), ('Sankaran', 5, 6),
+    -> ('Vikram', 1, 7), ('Naveen', 2, 7), ('Saravanan', 3, 7), ('Rajendran', 4, 7), ('Dharmaraj', 5, 7),
+    -> ('Siddharth', 1, 8), ('Manoj', 2, 8), ('Vignesh', 3, 8), ('Loganathan', 4, 8), ('Prakash', 5, 8),
+    -> ('Jay', 1, 9), ('Bhaskar', 2, 9), ('Arun', 3, 9), ('Elango', 4, 9), ('Gnanasekaran', 5, 9),
+    -> ('Kavin', 1, 10), ('Raghav', 2, 10), ('Dinesh', 3, 10), ('Selvaraj', 4, 10), ('Bharathi', 5, 10);
+Query OK, 50 rows affected (0.03 sec)
+Records: 50  Duplicates: 0  Warnings: 0
+
+mysql> select*from Candidate;
++--------------+----------------+----------+-----------------+
+| Candidate_id | Candidate_name | Party_id | Constituency_id |
++--------------+----------------+----------+-----------------+
+|            1 | Vijay          |        1 |               1 |
+|            2 | Annamalai      |        2 |               1 |
+|            3 | Seeman         |        3 |               1 |
+|            4 | EPS            |        4 |               1 |
+|            5 | Stalin         |        5 |               1 |
+|            6 | Ajith          |        1 |               2 |
+|            7 | Kumaravel      |        2 |               2 |
+|            8 | Thirumurugan   |        3 |               2 |
+|            9 | Jayakumar      |        4 |               2 |
+|           10 | Raja           |        5 |               2 |
+|           11 | Dhanush        |        1 |               3 |
+|           12 | Ilango         |        2 |               3 |
+|           13 | Gowtham        |        3 |               3 |
+|           14 | Natarajan      |        4 |               3 |
+|           15 | Balu           |        5 |               3 |
+|           16 | Suriya         |        1 |               4 |
+|           17 | Murugan        |        2 |               4 |
+|           18 | Marimuthu      |        3 |               4 |
+|           19 | Ponnusamy      |        4 |               4 |
+|           20 | Karunanidhi    |        5 |               4 |
+|           21 | Karthi         |        1 |               5 |
+|           22 | Ravi           |        2 |               5 |
+|           23 | Velu           |        3 |               5 |
+|           24 | Perumal        |        4 |               5 |
+|           25 | Ramasamy       |        5 |               5 |
+|           26 | Arya           |        1 |               6 |
+|           27 | Thangavel      |        2 |               6 |
+|           28 | Senthil        |        3 |               6 |
+|           29 | Muthiah        |        4 |               6 |
+|           30 | Sankaran       |        5 |               6 |
+|           31 | Vikram         |        1 |               7 |
+|           32 | Naveen         |        2 |               7 |
+|           33 | Saravanan      |        3 |               7 |
+|           34 | Rajendran      |        4 |               7 |
+|           35 | Dharmaraj      |        5 |               7 |
+|           36 | Siddharth      |        1 |               8 |
+|           37 | Manoj          |        2 |               8 |
+|           38 | Vignesh        |        3 |               8 |
+|           39 | Loganathan     |        4 |               8 |
+|           40 | Prakash        |        5 |               8 |
+|           41 | Jay            |        1 |               9 |
+|           42 | Bhaskar        |        2 |               9 |
+|           43 | Arun           |        3 |               9 |
+|           44 | Elango         |        4 |               9 |
+|           45 | Gnanasekaran   |        5 |               9 |
+|           46 | Kavin          |        1 |              10 |
+|           47 | Raghav         |        2 |              10 |
+|           48 | Dinesh         |        3 |              10 |
+|           49 | Selvaraj       |        4 |              10 |
+|           50 | Bharathi       |        5 |              10 |
++--------------+----------------+----------+-----------------+
+50 rows in set (0.00 sec)
+
+mysql> INSERT INTO Voter (Name, Age, Gender, Ward_id) VALUES
+    -> ('Ajay', 25, 'Male', 1),
+    -> ('Divya', 30, 'Female', 1),
+    -> ('Kumar', 40, 'Male', 2),
+    -> ('Rekha', 28, 'Female', 2),
+    -> ('Hari', 21, 'Male', 3),
+    -> ('Sita', 38, 'Female', 3),
+    -> ('Prakash', 32, 'Male', 4),
+    -> ('Meena', 27, 'Female', 5),
+    -> ('Vimal', 22, 'Male', 6),
+    -> ('Anjali', 26, 'Female', 7),
+    -> ('Ramesh', 29, 'Male', 8),
+    -> ('Sneha', 33, 'Female', 9),
+    -> ('Gopi', 35, 'Male', 10),
+    -> ('Lavanya', 24, 'Female', 11),
+    -> ('Sundar', 23, 'Male', 12);
+Query OK, 15 rows affected (0.02 sec)
+Records: 15  Duplicates: 0  Warnings: 0
+
+mysql> select*from Voter;
++----------+---------+------+--------+---------+
+| Voter_id | Name    | Age  | Gender | Ward_id |
++----------+---------+------+--------+---------+
+|        1 | Ajay    |   25 | Male   |       1 |
+|        2 | Divya   |   30 | Female |       1 |
+|        3 | Kumar   |   40 | Male   |       2 |
+|        4 | Rekha   |   28 | Female |       2 |
+|        5 | Hari    |   21 | Male   |       3 |
+|        6 | Sita    |   38 | Female |       3 |
+|        7 | Prakash |   32 | Male   |       4 |
+|        8 | Meena   |   27 | Female |       5 |
+|        9 | Vimal   |   22 | Male   |       6 |
+|       10 | Anjali  |   26 | Female |       7 |
+|       11 | Ramesh  |   29 | Male   |       8 |
+|       12 | Sneha   |   33 | Female |       9 |
+|       13 | Gopi    |   35 | Male   |      10 |
+|       14 | Lavanya |   24 | Female |      11 |
+|       15 | Sundar  |   23 | Male   |      12 |
++----------+---------+------+--------+---------+
+15 rows in set (0.00 sec)
+
+mysql> DELIMITER //
+mysql> 
+mysql> CREATE PROCEDURE generate_votes()
+    -> BEGIN
+    ->     DECLARE i INT DEFAULT 1;
+    ->     DECLARE rand_candidate_id INT;
+    ->     DECLARE max_voter INT;
+    -> 
+    ->     -- Get the maximum existing voter_id
+    ->     SELECT MAX(Voter_id) INTO max_voter FROM Voter;
+    -> 
+    ->     WHILE i <= 100000 DO
+    ->         SELECT Candidate_id INTO rand_candidate_id
+    ->         FROM Candidate
+    ->         ORDER BY RAND()
+    ->         LIMIT 1;
+    -> 
+    ->         INSERT INTO Vote (Voter_id, Candidate_id)
+    ->         VALUES ((FLOOR(1 + RAND() * max_voter)), rand_candidate_id); 
+    -> 
+    ->         SET i = i + 1;
+    ->     END WHILE;
+    -> END;
+    -> //
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> 
+mysql> DELIMITER ;
+mysql> call generate_votes();
+Query OK, 1 row affected (22 min 36.08 sec)
